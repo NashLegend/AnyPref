@@ -24,6 +24,9 @@ public class AnyPref {
 
     private static ConcurrentHashMap<String, Field[]> fieldsMap = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<String, Boolean> strSetMap = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, String> classKeyMap = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, String> fieldKeyMap = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, Boolean> ignoreMap = new ConcurrentHashMap<>();
 
     private static Field[] getFields(Class clazz) {
         String key = getKeyForClazz(clazz);
@@ -156,8 +159,6 @@ public class AnyPref {
         return false;
     }
 
-    private static ConcurrentHashMap<String, String> classKeyMap = new ConcurrentHashMap<>();
-
     private static String getKeyForClazz(Class clazz) {
         String key = classKeyMap.get(clazz.getCanonicalName());
         if (key == null) {
@@ -176,7 +177,6 @@ public class AnyPref {
         }
     }
 
-    private static ConcurrentHashMap<String, String> fieldKeyMap = new ConcurrentHashMap<>();
 
     private static String getKeyForField(Field field) {
         String keyMap = field.getDeclaringClass().getCanonicalName() + "$$" + field.getName();
@@ -197,7 +197,6 @@ public class AnyPref {
         }
     }
 
-    private static ConcurrentHashMap<String, Boolean> ignoreMap = new ConcurrentHashMap<>();
 
     private static boolean isFieldIgnored(Field field) {
         String keyMap = field.getDeclaringClass().getCanonicalName() + "$$" + field.getName();
