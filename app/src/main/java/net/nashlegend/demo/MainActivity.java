@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void click(View v) {
         try {
+            long start = System.currentTimeMillis();
             Sample sample = new Sample();
             sample.boolField = true;
             sample.intField = 2;
@@ -38,7 +39,10 @@ public class MainActivity extends AppCompatActivity {
             sets.add("5");
             sample.setValue = sets;
             EasyPref.apply(sample, this);
+            System.out.println(System.currentTimeMillis()-start);
+            start = System.currentTimeMillis();
             EasyPref.get(sample.getClass(), this);
+            System.out.println(System.currentTimeMillis()-start);
         } catch (Exception e) {
             e.printStackTrace();
         }
