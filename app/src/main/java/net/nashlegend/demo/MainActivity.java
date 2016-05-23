@@ -43,9 +43,9 @@ public class MainActivity extends AppCompatActivity {
 
         AnyPref.getPrefs(Sample.class)
                 .beginTransaction()
-                .putLong("long", 920394857382L)
-                .putInt("int", 63)
-                .putString("string", "sample string")
+                .putLong("long", 33333)
+                .putInt("int", 22222)
+                .putString("string", "sssss")
                 .commit();
 
         SharedPrefs sharedPrefs = AnyPref.getPrefs(getLocalClassName());

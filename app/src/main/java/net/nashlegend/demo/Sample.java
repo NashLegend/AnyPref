@@ -1,6 +1,6 @@
 package net.nashlegend.demo;
 
-import net.nashlegend.anypref.annotations.Pref;
+import net.nashlegend.anypref.annotations.PrefField;
 import net.nashlegend.anypref.annotations.PrefIgnore;
 import net.nashlegend.anypref.annotations.PrefModel;
 
@@ -12,7 +12,7 @@ import java.util.Set;
  */
 @PrefModel("SampleKeys")
 public class Sample {
-    @Pref("intKey")
+    @PrefField("intKey")
     public int intField = 65535;
     @PrefIgnore
     public float floatField = 1.235f;
@@ -32,4 +32,15 @@ public class Sample {
     public String stringField4 = "string";
     public boolean boolField5 = false;
     public Set<String> setValue6 = new LinkedHashSet<>();
+
+    @PrefField(number = 110)
+    public long longField123 = 95789465213L;
+    @PrefField(number = 110)
+    public int intField123 = 2;
+    @PrefField(number = 110)
+    public float floatField123 = 1.2f;
+    @PrefField(bool = true)
+    public boolean boolField123 = false;
+    @PrefField(string = "Default")
+    public String stringField123 = "NotDefault";
 }

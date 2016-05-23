@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
-import net.nashlegend.anypref.annotations.Pref;
+import net.nashlegend.anypref.annotations.PrefField;
 import net.nashlegend.anypref.annotations.PrefIgnore;
 import net.nashlegend.anypref.annotations.PrefModel;
 
@@ -13,6 +13,8 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -125,24 +127,25 @@ public class AnyPref {
      * 从SharedPreferences读取一个变量并赋值
      */
     private static void read(SharedPreferences preferences, Field field, Object object) {
+        String cacheKey = getCacheKeyForField(field);
         String key = getKeyForField(field);
         String type = field.getType().getCanonicalName();
         try {
             switch (type) {
                 case "int":
-                    field.setInt(object, preferences.getInt(key, 0));
+                    field.setInt(object, preferences.getInt(key, (int) getDefaultNumber(cacheKey)));
                     break;
                 case "float":
-                    field.setFloat(object, preferences.getFloat(key, 0));
+                    field.setFloat(object, preferences.getFloat(key, (float) getDefaultNumber(cacheKey)));
                     break;
                 case "long":
-                    field.setLong(object, preferences.getLong(key, 0));
+                    field.setLong(object, preferences.getLong(key, (long) getDefaultNumber(cacheKey)));
                     break;
                 case "boolean":
-                    field.setBoolean(object, preferences.getBoolean(key, false));
+                    field.setBoolean(object, preferences.getBoolean(key, getDefaultBoolean(cacheKey)));
                     break;
                 case "java.lang.String":
-                    field.set(object, preferences.getString(key, null));
+                    field.set(object, preferences.getString(key, getDefaultString(cacheKey)));
                     break;
                 default:
                     String mapKey = getKeyForClazz(object.getClass()) + "$$" + key;
@@ -150,11 +153,11 @@ public class AnyPref {
                     if (result == null) {
                         boolean isSet = isFieldStringSet(field);
                         if (isSet) {
-                            field.set(object, preferences.getStringSet(key, null));
+                            field.set(object, preferences.getStringSet(key, getDefaultStringSet(cacheKey)));
                         }
                         strSetMap.put(mapKey, isSet);
                     } else if (result) {
-                        field.set(object, preferences.getStringSet(key, null));
+                        field.set(object, preferences.getStringSet(key, getDefaultStringSet(cacheKey)));
                     }
                     break;
             }
@@ -204,24 +207,23 @@ public class AnyPref {
         }
     }
 
-
     /**
      * 返回保存此变量到SharedPreferences使用的key，如果有注解则是注解中的值，否则就是变量名
      */
     private static String getKeyForField(Field field) {
-        String keyMap = field.getDeclaringClass().getCanonicalName() + "$$" + field.getName();
-        String key = fieldKeyMap.get(keyMap);
+        String cacheKey = getCacheKeyForField(field);
+        String key = fieldKeyMap.get(cacheKey);
         if (key == null) {
-            if (field.isAnnotationPresent(Pref.class)) {
-                Pref pref = field.getAnnotation(Pref.class);
+            if (field.isAnnotationPresent(PrefField.class)) {
+                PrefField pref = field.getAnnotation(PrefField.class);
                 String value = pref.value();
                 if (!TextUtils.isEmpty(value)) {
-                    fieldKeyMap.put(keyMap, value);
+                    fieldKeyMap.put(cacheKey, value);
                     return value;
                 }
             }
-            fieldKeyMap.put(keyMap, field.getType().getCanonicalName());
-            return field.getType().getCanonicalName();
+            fieldKeyMap.put(cacheKey, field.getName());
+            return field.getName();
         } else {
             return key;
         }
@@ -248,6 +250,7 @@ public class AnyPref {
                 if (Modifier.isFinal(modifier) || Modifier.isStatic(modifier) || isFieldIgnored(field)) {
                     continue;
                 }
+                getDefaultValue(field);
                 fields.add(field);
             }
             fieldsMap.put(key, fields);
@@ -255,8 +258,90 @@ public class AnyPref {
         return fields;
     }
 
+    private static void getDefaultValue(Field field) {
+        if (field.isAnnotationPresent(PrefField.class)) {
+            PrefField pref = field.getAnnotation(PrefField.class);
+            String cacheKey = getCacheKeyForField(field);
+            String type = field.getType().getCanonicalName();
+            switch (type) {
+                case "int":
+                case "float":
+                case "long":
+                    defaultNumberMap.put(cacheKey, pref.number());
+                    break;
+                case "boolean":
+                    defaultBooleanMap.put(cacheKey, pref.bool());
+                    break;
+                case "java.lang.String":
+                    String[] ds = pref.string();
+                    if (ds != null && ds.length > 0) {
+                        defaultStringMap.put(cacheKey, pref.string()[0]);
+                    }
+                    break;
+                default:
+                    if (isFieldStringSet(field)) {
+                        String[] sets = pref.string();
+                        if (sets != null) {
+                            HashSet<String> hashSet = new HashSet<>();
+                            hashSet.addAll(Arrays.asList(pref.string()));
+                            defaultStringSetMap.put(cacheKey, hashSet);
+                        }
+                    }
+                    break;
+            }
+        }
+    }
+
+    private static String getCacheKeyForField(Field field) {
+        return field.getDeclaringClass().getCanonicalName() + "$$" + field.getName();
+    }
+
+    ///////下面这一片可以再封装一下
+    /**
+     * 字段缓存
+     */
     private static ConcurrentHashMap<String, ArrayList<Field>> fieldsMap = new ConcurrentHashMap<>();
+    /**
+     * 判断字段是不是Set<String>的缓存
+     */
     private static ConcurrentHashMap<String, Boolean> strSetMap = new ConcurrentHashMap<>();
+    /**
+     * 保存实例的SharedPreferences的name缓存
+     */
     private static ConcurrentHashMap<String, String> classKeyMap = new ConcurrentHashMap<>();
+    /**
+     * 保存字段时使用的Key的缓存
+     */
     private static ConcurrentHashMap<String, String> fieldKeyMap = new ConcurrentHashMap<>();
+
+    private static ConcurrentHashMap<String, Double> defaultNumberMap = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, Boolean> defaultBooleanMap = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, String> defaultStringMap = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, Set<String>> defaultStringSetMap = new ConcurrentHashMap<>();
+
+    private static double getDefaultNumber(String key) {
+        Double num = defaultNumberMap.get(key);
+        if (num == null) {
+            return 0;
+        } else {
+            return num;
+        }
+    }
+
+    private static boolean getDefaultBoolean(String key) {
+        Boolean bool = defaultBooleanMap.get(key);
+        if (bool == null) {
+            return false;
+        } else {
+            return bool;
+        }
+    }
+
+    private static String getDefaultString(String key) {
+        return defaultStringMap.get(key);
+    }
+
+    private static Set<String> getDefaultStringSet(String key) {
+        return defaultStringSetMap.get(key);
+    }
 }

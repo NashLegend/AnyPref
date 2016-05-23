@@ -40,6 +40,7 @@
         public int intField = 32;
         @PrefIgnore//添加此注解表示不保存这个变量
         public float floatField = 1.2345f;
+        @Pref(number = 110)//表示如果读取不到后使用的默认值
         public long longField = 95789465213L;
         public String stringField = "string";
         public boolean boolField = false;

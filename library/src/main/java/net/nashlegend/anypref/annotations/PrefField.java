@@ -11,6 +11,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Target(FIELD)
 @Retention(RUNTIME)
-public @interface Pref {
-    String value();
+public @interface PrefField {
+    String value() default "";
+
+    double number() default 0;
+
+    boolean bool() default false;
+
+    String[] string() default "";
 }
