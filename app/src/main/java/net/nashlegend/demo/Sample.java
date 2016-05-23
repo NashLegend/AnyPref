@@ -1,13 +1,26 @@
 package net.nashlegend.demo;
 
+import net.nashlegend.demo.annotations.Pref;
+import net.nashlegend.demo.annotations.PrefIgnore;
+import net.nashlegend.demo.annotations.PrefModel;
+
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
  * Created by NashLegend on 16/5/22.
  */
+@PrefModel("Table")
 public class Sample {
+    public int intField = 65535;
+    public float floatField = 1.235f;
+    public long longField = 95789465213L;
+    public String stringField = "string";
+    public boolean boolField = false;
+    public Set<String> setValue = new LinkedHashSet<>();
+    @Pref("rrrrrrrrrrrrr")
     public int intFieldz = 65535;
+    @PrefIgnore
     public float floatFieldx = 1.235f;
     public long longFieldc = 95789465213L;
     public String stringFieldvd = "string";
@@ -80,10 +93,4 @@ public class Sample {
     public String string1Fielde = "string";
     public boolean boolF1ieldr = false;
     public Set<String> setV1aluet = new LinkedHashSet<>();
-    public int intField = 65535;
-    public float floatField = 1.235f;
-    public long longField = 95789465213L;
-    public String stringField = "string";
-    public boolean boolField = false;
-    public Set<String> setValue = new LinkedHashSet<>();
 }

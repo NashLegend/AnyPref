@@ -2,6 +2,11 @@ package net.nashlegend.demo;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
+
+import net.nashlegend.demo.annotations.Pref;
+import net.nashlegend.demo.annotations.PrefIgnore;
+import net.nashlegend.demo.annotations.PrefModel;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -18,17 +23,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AnyPref {
 
     private static ConcurrentHashMap<String, Field[]> fieldsMap = new ConcurrentHashMap<>();
-    private static ConcurrentHashMap<String, Boolean> setMap = new ConcurrentHashMap<>();
-
-    public static void main(String[] args) {
-
-    }
+    private static ConcurrentHashMap<String, Boolean> strSetMap = new ConcurrentHashMap<>();
 
     private static Field[] getFields(Class clazz) {
-        Field[] fields = fieldsMap.get(clazz.getCanonicalName());
+        String key = getKeyForClazz(clazz);
+        Field[] fields = fieldsMap.get(key);
         if (fields == null) {
             fields = clazz.getFields();
-            fieldsMap.put(clazz.getCanonicalName(), fields);
+            fieldsMap.put(key, fields);
         }
         return fields;
     }
@@ -38,20 +40,20 @@ public class AnyPref {
         Field[] fields = getFields(clazz);
         for (Field field : fields) {
             int modifier = field.getModifiers();
-            if (Modifier.isFinal(modifier) || Modifier.isStatic(modifier)) {
+            if (Modifier.isFinal(modifier) || Modifier.isStatic(modifier) || isFieldIgnored(field)) {
                 continue;
             }
-            get(context.getSharedPreferences(clazz.getCanonicalName(), Context.MODE_PRIVATE), field, obj);
+            get(context.getSharedPreferences(getKeyForClazz(clazz), Context.MODE_PRIVATE), field, obj);
         }
         return obj;
     }
 
     public static void apply(Object object, Context context) {
-        SharedPreferences.Editor editor = context.getSharedPreferences(object.getClass().getCanonicalName(),
+        SharedPreferences.Editor editor = context.getSharedPreferences(getKeyForClazz(object.getClass()),
                 Context.MODE_PRIVATE).edit();
         for (Field field : getFields(object.getClass())) {
             int modifier = field.getModifiers();
-            if (Modifier.isFinal(modifier) || Modifier.isStatic(modifier)) {
+            if (Modifier.isFinal(modifier) || Modifier.isStatic(modifier) || isFieldIgnored(field)) {
                 continue;
             }
             put(editor, field, object);
@@ -60,7 +62,7 @@ public class AnyPref {
     }
 
     private static void put(SharedPreferences.Editor editor, Field field, Object object) {
-        String key = field.getName();
+        String key = getKeyForField(field);
         String type = field.getType().getCanonicalName();
         try {
             switch (type) {
@@ -80,14 +82,14 @@ public class AnyPref {
                     editor.putString(key, String.valueOf(field.get(object)));
                     break;
                 default:
-                    String mapKey = object.getClass().getCanonicalName() + "$$" + key;
-                    Boolean result = setMap.get(mapKey);
+                    String mapKey = getKeyForClazz(object.getClass()) + "$$" + key;
+                    Boolean result = strSetMap.get(mapKey);
                     if (result == null) {
                         boolean isSet = isFieldStringSet(field);
                         if (isSet) {
                             editor.putStringSet(key, (Set<String>) field.get(object));
                         }
-                        setMap.put(mapKey, isSet);
+                        strSetMap.put(mapKey, isSet);
                     } else if (result) {
                         editor.putStringSet(key, (Set<String>) field.get(object));
                     }
@@ -99,7 +101,7 @@ public class AnyPref {
     }
 
     private static void get(SharedPreferences preferences, Field field, Object object) {
-        String key = field.getName();
+        String key = getKeyForField(field);
         String type = field.getType().getCanonicalName();
         try {
             switch (type) {
@@ -119,14 +121,14 @@ public class AnyPref {
                     field.set(object, preferences.getString(key, null));
                     break;
                 default:
-                    String mapKey = object.getClass().getCanonicalName() + "$$" + key;
-                    Boolean result = setMap.get(mapKey);
+                    String mapKey = getKeyForClazz(object.getClass()) + "$$" + key;
+                    Boolean result = strSetMap.get(mapKey);
                     if (result == null) {
                         boolean isSet = isFieldStringSet(field);
                         if (isSet) {
                             field.set(object, preferences.getStringSet(key, null));
                         }
-                        setMap.put(mapKey, isSet);
+                        strSetMap.put(mapKey, isSet);
                     } else if (result) {
                         field.set(object, preferences.getStringSet(key, null));
                     }
@@ -152,5 +154,59 @@ public class AnyPref {
             }
         }
         return false;
+    }
+
+    private static ConcurrentHashMap<String, String> classKeyMap = new ConcurrentHashMap<>();
+
+    private static String getKeyForClazz(Class clazz) {
+        String key = classKeyMap.get(clazz.getCanonicalName());
+        if (key == null) {
+            if (clazz.isAnnotationPresent(PrefModel.class)) {
+                PrefModel model = (PrefModel) clazz.getAnnotation(PrefModel.class);
+                String value = model.value();
+                if (!TextUtils.isEmpty(value)) {
+                    classKeyMap.put(clazz.getCanonicalName(), value);
+                    return value;
+                }
+            }
+            classKeyMap.put(clazz.getCanonicalName(), clazz.getCanonicalName());
+            return clazz.getCanonicalName();
+        } else {
+            return key;
+        }
+    }
+
+    private static ConcurrentHashMap<String, String> fieldKeyMap = new ConcurrentHashMap<>();
+
+    private static String getKeyForField(Field field) {
+        String keyMap = field.getDeclaringClass().getCanonicalName() + "$$" + field.getName();
+        String key = fieldKeyMap.get(keyMap);
+        if (key == null) {
+            if (field.isAnnotationPresent(Pref.class)) {
+                Pref pref = field.getAnnotation(Pref.class);
+                String value = pref.value();
+                if (!TextUtils.isEmpty(value)) {
+                    fieldKeyMap.put(keyMap, value);
+                    return value;
+                }
+            }
+            fieldKeyMap.put(keyMap, field.getType().getCanonicalName());
+            return field.getType().getCanonicalName();
+        } else {
+            return key;
+        }
+    }
+
+    private static ConcurrentHashMap<String, Boolean> ignoreMap = new ConcurrentHashMap<>();
+
+    private static boolean isFieldIgnored(Field field) {
+        String keyMap = field.getDeclaringClass().getCanonicalName() + "$$" + field.getName();
+        Boolean result = ignoreMap.get(keyMap);
+        if (result == null) {
+            result = field.isAnnotationPresent(PrefIgnore.class);
+            ignoreMap.put(keyMap, result);
+        }
+        return result;
+
     }
 }
