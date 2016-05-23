@@ -1,12 +1,12 @@
-package net.nashlegend.demo;
+package net.nashlegend.anypref;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
-import net.nashlegend.demo.annotations.Pref;
-import net.nashlegend.demo.annotations.PrefIgnore;
-import net.nashlegend.demo.annotations.PrefModel;
+import net.nashlegend.anypref.annotations.Pref;
+import net.nashlegend.anypref.annotations.PrefIgnore;
+import net.nashlegend.anypref.annotations.PrefModel;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

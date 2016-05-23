@@ -29,4 +29,4 @@
     Sample sample = AnyPref.get(Sample.class)
 ```
 
-PS：只会保修饰符为```public```的变量，```static```与```final```的变量均不会保存
+PS：只会保存SharedPreferences支持的数据类型且修饰符为```public```的变量，```static```与```final```的变量均不会保存

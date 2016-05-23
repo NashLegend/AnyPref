@@ -5,6 +5,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+import net.nashlegend.anypref.AnyPref;
+
 import java.util.HashSet;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
             sample.boolField = true;
             sample.intField = 2;
             sample.floatField = 3.54f;
-            sample.stringField = "Tedguysa";
+            sample.stringField = "stringField";
             HashSet<String> sets = new HashSet<>();
             sets.add("1");
             sets.add("2");

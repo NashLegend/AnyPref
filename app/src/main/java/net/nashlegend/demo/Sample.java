@@ -1,8 +1,8 @@
 package net.nashlegend.demo;
 
-import net.nashlegend.demo.annotations.Pref;
-import net.nashlegend.demo.annotations.PrefIgnore;
-import net.nashlegend.demo.annotations.PrefModel;
+import net.nashlegend.anypref.annotations.Pref;
+import net.nashlegend.anypref.annotations.PrefIgnore;
+import net.nashlegend.anypref.annotations.PrefModel;
 
 import java.util.LinkedHashSet;
 import java.util.Set;

@@ -1,4 +1,4 @@
-package net.nashlegend.demo.annotations;
+package net.nashlegend.anypref.annotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

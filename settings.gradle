@@ -1,1 +1,1 @@
-include ':app', ':anypref'
+include ':app', ':library'
