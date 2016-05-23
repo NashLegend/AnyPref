@@ -1,1 +1,1 @@
-include ':app', ':pref-compiler', ':easypref', ':pref-annotations'
+include ':app', ':easypref'

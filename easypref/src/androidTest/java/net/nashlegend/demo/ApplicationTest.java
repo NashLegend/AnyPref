@@ -1,4 +1,4 @@
-package net.nashlegend.easypref;
+package net.nashlegend.demo;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

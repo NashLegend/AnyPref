@@ -1,0 +1,46 @@
+package net.nashlegend.demo;
+
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
+
+import java.util.HashSet;
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Button button = (Button) findViewById(R.id.btn);
+        assert button != null;
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainActivity.this.click(v);
+            }
+        });
+    }
+
+    private void click(View v) {
+        try {
+            Sample sample = new Sample();
+            sample.boolField = true;
+            sample.intField = 2;
+            sample.floatField = 3.54f;
+            sample.stringField = "Tedguysa";
+            HashSet<String> sets = new HashSet<>();
+            sets.add("1");
+            sets.add("2");
+            sets.add("3");
+            sets.add("4");
+            sets.add("5");
+            sample.setValue = sets;
+            EasyPref.apply(sample, this);
+            EasyPref.get(sample.getClass(), this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

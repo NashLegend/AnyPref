@@ -1,8 +1,0 @@
-apply plugin: 'java'
-
-dependencies {
-    compile project(':easypref')
-    compile deps.AutoService
-    compile deps.AutoCommon
-    compile deps.JavaPoet
-}

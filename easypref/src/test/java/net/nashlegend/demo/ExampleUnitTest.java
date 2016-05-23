@@ -1,4 +1,4 @@
-package net.nashlegend.easypref;
+package net.nashlegend.demo;
 
 import org.junit.Test;
 
