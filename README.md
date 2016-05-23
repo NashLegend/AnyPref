@@ -1,7 +1,29 @@
+一个SharedPreferences工具类
+-----------------------
 
-## 这是一个快速保存一个类的实例到SharedPreferences中或者从SharedPreferences中读取一个保存过的实例的工具
+## 1. 读写任意数据
 
-## 使用方法:
+    ```
+        AnyPref.getPrefs("sample", this)//或者new SharedPrefs("sample", this)
+                .putLong("long", 920394857382L)
+                .putInt("int", 63)
+                .putString("string", "sample string");
+    
+        AnyPref.getPrefs(Sample.class, this)
+                .beginTransaction()
+                .putLong("long", 920394857382L)
+                .putInt("int", 63)
+                .putString("string", "sample string")
+                .commit();
+    
+        SharedPrefs sharedPrefs = AnyPref.getPrefs("sample", this);
+        System.out.println(sharedPrefs.getInt("int", 0));
+        System.out.println(sharedPrefs.getLong("long", 0));
+        System.out.println(sharedPrefs.getString("string", ""));
+    ```
+
+
+## 2. 读写实例对象
 
 假设有一个Sample类
 
@@ -19,14 +41,23 @@
     }
 ```
 
-### 保存数据:
+#### 保存数据:
 ```
-    AnyPref.apply(sample，context);
+    AnyPref.save(sample，context);
 ```
 
-### 读取数据
+#### 读取数据
 ```
     Sample sample = AnyPref.get(Sample.class)
 ```
 
-PS：只会保存SharedPreferences支持的数据类型且修饰符为```public```的变量，```static```与```final```的变量均不会保存
+#### 清除数据
+```
+    AnyPref.clear(Sample.class)
+```
+
+PS，对于实例对象的读写：
+
+1. 只支持SharedPreferences支持的数据类型;
+2. 只会保存修饰符为```public```的变量，```static```与```final```的变量均不会保存;
+3. 保存的类需要支持无参构造函数

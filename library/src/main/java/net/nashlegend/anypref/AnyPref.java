@@ -12,58 +12,70 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by NashLegend on 16/5/20.
- * 应该满足动态定义PrefName的需求，比如为不同的用户添加不同的名字
  */
 @SuppressWarnings("unchecked")
 public class AnyPref {
 
-    private static ConcurrentHashMap<String, Field[]> fieldsMap = new ConcurrentHashMap<>();
-    private static ConcurrentHashMap<String, Boolean> strSetMap = new ConcurrentHashMap<>();
-    private static ConcurrentHashMap<String, String> classKeyMap = new ConcurrentHashMap<>();
-    private static ConcurrentHashMap<String, String> fieldKeyMap = new ConcurrentHashMap<>();
-    private static ConcurrentHashMap<String, Boolean> ignoreMap = new ConcurrentHashMap<>();
-
-    private static Field[] getFields(Class clazz) {
-        String key = getKeyForClazz(clazz);
-        Field[] fields = fieldsMap.get(key);
-        if (fields == null) {
-            fields = clazz.getFields();
-            fieldsMap.put(key, fields);
-        }
-        return fields;
+    /**
+     * 返回一个SharedPrefs对象，可进行指定名字的SharedPreferences的读写
+     */
+    public static SharedPrefs getPrefs(String key, Context context) {
+        return new SharedPrefs(key, context);
     }
 
-    public static <T> T get(Class<T> clazz, Context context) throws IllegalAccessException, InstantiationException {
-        T obj = clazz.newInstance();
-        Field[] fields = getFields(clazz);
-        for (Field field : fields) {
-            int modifier = field.getModifiers();
-            if (Modifier.isFinal(modifier) || Modifier.isStatic(modifier) || isFieldIgnored(field)) {
-                continue;
-            }
-            get(context.getSharedPreferences(getKeyForClazz(clazz), Context.MODE_PRIVATE), field, obj);
+    /**
+     * 返回一个SharedPrefs对象，可进行指定类的SharedPreferences的读写
+     */
+    public static SharedPrefs getPrefs(Class clazz, Context context) {
+        return new SharedPrefs(getKeyForClazz(clazz), context);
+    }
+
+    /**
+     * 从SharedPreferences中清除一个实例
+     */
+    public static void clear(Class clazz, Context context) {
+        new SharedPrefs(getKeyForClazz(clazz), context).clear();
+    }
+
+    /**
+     * 从SharedPreferences中读取一个实例
+     */
+    public static <T> T read(Class<T> clazz, Context context) {
+        T obj;
+        try {
+            obj = clazz.newInstance();
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e.getMessage());
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        for (Field field : getFields(clazz)) {
+            read(context.getSharedPreferences(getKeyForClazz(clazz), Context.MODE_PRIVATE), field, obj);
         }
         return obj;
     }
 
-    public static void apply(Object object, Context context) {
+    /**
+     * 将一个对象实例保存到SharedPreferences中
+     */
+    public static void save(Object object, Context context) {
         SharedPreferences.Editor editor = context.getSharedPreferences(getKeyForClazz(object.getClass()),
                 Context.MODE_PRIVATE).edit();
         for (Field field : getFields(object.getClass())) {
-            int modifier = field.getModifiers();
-            if (Modifier.isFinal(modifier) || Modifier.isStatic(modifier) || isFieldIgnored(field)) {
-                continue;
-            }
             put(editor, field, object);
         }
         editor.apply();
     }
 
+    /**
+     * 将一个变量保存到SharedPreferences中
+     */
     private static void put(SharedPreferences.Editor editor, Field field, Object object) {
         String key = getKeyForField(field);
         String type = field.getType().getCanonicalName();
@@ -103,7 +115,10 @@ public class AnyPref {
         }
     }
 
-    private static void get(SharedPreferences preferences, Field field, Object object) {
+    /**
+     * 从SharedPreferences读取一个变量并赋值
+     */
+    private static void read(SharedPreferences preferences, Field field, Object object) {
         String key = getKeyForField(field);
         String type = field.getType().getCanonicalName();
         try {
@@ -142,6 +157,9 @@ public class AnyPref {
         }
     }
 
+    /**
+     * 判断变量是否是Set<String>
+     */
     private static boolean isFieldStringSet(Field field) {
         if (field.getType().isAssignableFrom(Set.class)) {
             Type tp = field.getGenericType();
@@ -159,6 +177,9 @@ public class AnyPref {
         return false;
     }
 
+    /**
+     * 返回保存此类的SharedPreferences的name，如果有注解则是注解中的值，否则就是类全名
+     */
     private static String getKeyForClazz(Class clazz) {
         String key = classKeyMap.get(clazz.getCanonicalName());
         if (key == null) {
@@ -178,6 +199,9 @@ public class AnyPref {
     }
 
 
+    /**
+     * 返回保存此变量到SharedPreferences使用的key，如果有注解则是注解中的值，否则就是变量名
+     */
     private static String getKeyForField(Field field) {
         String keyMap = field.getDeclaringClass().getCanonicalName() + "$$" + field.getName();
         String key = fieldKeyMap.get(keyMap);
@@ -197,15 +221,36 @@ public class AnyPref {
         }
     }
 
-
+    /**
+     * 判断一个变量是否被忽略而不被保存到SharedPreferences中
+     */
     private static boolean isFieldIgnored(Field field) {
-        String keyMap = field.getDeclaringClass().getCanonicalName() + "$$" + field.getName();
-        Boolean result = ignoreMap.get(keyMap);
-        if (result == null) {
-            result = field.isAnnotationPresent(PrefIgnore.class);
-            ignoreMap.put(keyMap, result);
-        }
-        return result;
-
+        return field.isAnnotationPresent(PrefIgnore.class);
     }
+
+    /**
+     * 获取类的所有变量
+     */
+    private static ArrayList<Field> getFields(Class clazz) {
+        String key = getKeyForClazz(clazz);
+        ArrayList<Field> fields = fieldsMap.get(key);
+        if (fields == null) {
+            fields = new ArrayList<>();
+            Field[] fieldArray = clazz.getFields();
+            for (Field field : fieldArray) {
+                int modifier = field.getModifiers();
+                if (Modifier.isFinal(modifier) || Modifier.isStatic(modifier) || isFieldIgnored(field)) {
+                    continue;
+                }
+                fields.add(field);
+            }
+            fieldsMap.put(key, fields);
+        }
+        return fields;
+    }
+
+    private static ConcurrentHashMap<String, ArrayList<Field>> fieldsMap = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, Boolean> strSetMap = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, String> classKeyMap = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, String> fieldKeyMap = new ConcurrentHashMap<>();
 }

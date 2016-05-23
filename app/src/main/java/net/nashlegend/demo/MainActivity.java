@@ -6,8 +6,7 @@ import android.view.View;
 import android.widget.Button;
 
 import net.nashlegend.anypref.AnyPref;
-
-import java.util.HashSet;
+import net.nashlegend.anypref.SharedPrefs;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,33 +19,43 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainActivity.this.click(v);
+                anyPref();
+                namedPref();
             }
         });
     }
 
-    private void click(View v) {
-        try {
-            long start = System.currentTimeMillis();
-            Sample sample = new Sample();
-            sample.boolField = true;
-            sample.intField = 2;
-            sample.floatField = 3.54f;
-            sample.stringField = "stringField";
-            HashSet<String> sets = new HashSet<>();
-            sets.add("1");
-            sets.add("2");
-            sets.add("3");
-            sets.add("4");
-            sets.add("5");
-            sample.setValue = sets;
-            AnyPref.apply(sample, this);
-            System.out.println(System.currentTimeMillis()-start);
-            start = System.currentTimeMillis();
-            AnyPref.get(sample.getClass(), this);
-            System.out.println(System.currentTimeMillis()-start);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private void anyPref() {
+        long start = System.currentTimeMillis();
+        Sample sample = new Sample();
+        sample.boolField = true;
+        sample.intField = 63;
+        sample.floatField = 42.0f;
+        sample.stringField = "sample string";
+        AnyPref.save(sample, this);
+        System.out.println(System.currentTimeMillis() - start);
+        start = System.currentTimeMillis();
+        AnyPref.read(Sample.class, this);
+        System.out.println(System.currentTimeMillis() - start);
+        AnyPref.clear(Sample.class, this);
+    }
+
+    private void namedPref() {
+        AnyPref.getPrefs("sample", this)
+                .putLong("long", 920394857382L)
+                .putInt("int", 63)
+                .putString("string", "sample string");
+
+        AnyPref.getPrefs(Sample.class, this)
+                .beginTransaction()
+                .putLong("long", 920394857382L)
+                .putInt("int", 63)
+                .putString("string", "sample string")
+                .commit();
+
+        SharedPrefs sharedPrefs = AnyPref.getPrefs("sample", this);
+        System.out.println(sharedPrefs.getInt("int", 0));
+        System.out.println(sharedPrefs.getLong("long", 0));
+        System.out.println(sharedPrefs.getString("string", ""));
     }
 }
