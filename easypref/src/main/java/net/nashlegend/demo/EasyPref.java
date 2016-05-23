@@ -83,26 +83,13 @@ public class EasyPref {
                     String mapKey = object.getClass().getCanonicalName() + "$$" + key;
                     Boolean result = setMap.get(mapKey);
                     if (result == null) {
-                        if (field.getType().isAssignableFrom(Set.class)) {
-                            Type tp = field.getGenericType();
-                            if (tp != null && tp instanceof ParameterizedType) {
-                                ParameterizedType pt = (ParameterizedType) tp;
-                                Type[] types = pt.getActualTypeArguments();
-                                if (types.length == 1) {
-                                    Class genericClazz = (Class) pt.getActualTypeArguments()[0];
-                                    if (genericClazz.getCanonicalName().equals(String.class.getCanonicalName())) {
-                                        setMap.put(mapKey, true);
-                                        Set<String> stringSet = (Set<String>) field.get(object);
-                                        editor.putStringSet(key, stringSet);
-                                        break;
-                                    }
-                                }
-                            }
+                        boolean isSet = isFieldStringSet(field);
+                        if (isSet) {
+                            editor.putStringSet(key, (Set<String>) field.get(object));
                         }
-                        setMap.put(mapKey, false);
+                        setMap.put(mapKey, isSet);
                     } else if (result) {
-                        Set<String> stringSet = (Set<String>) field.get(object);
-                        editor.putStringSet(key, stringSet);
+                        editor.putStringSet(key, (Set<String>) field.get(object));
                     }
                     break;
             }
@@ -135,22 +122,11 @@ public class EasyPref {
                     String mapKey = object.getClass().getCanonicalName() + "$$" + key;
                     Boolean result = setMap.get(mapKey);
                     if (result == null) {
-                        if (field.getType().isAssignableFrom(Set.class)) {
-                            Type tp = field.getGenericType();
-                            if (tp != null && tp instanceof ParameterizedType) {
-                                ParameterizedType pt = (ParameterizedType) tp;
-                                Type[] types = pt.getActualTypeArguments();
-                                if (types.length == 1) {
-                                    Class genericClazz = (Class) pt.getActualTypeArguments()[0];
-                                    if (genericClazz.getCanonicalName().equals(String.class.getCanonicalName())) {
-                                        setMap.put(mapKey, true);
-                                        field.set(object, preferences.getStringSet(key, null));
-                                        break;
-                                    }
-                                }
-                            }
+                        boolean isSet = isFieldStringSet(field);
+                        if (isSet) {
+                            field.set(object, preferences.getStringSet(key, null));
                         }
-                        setMap.put(mapKey, false);
+                        setMap.put(mapKey, isSet);
                     } else if (result) {
                         field.set(object, preferences.getStringSet(key, null));
                     }
@@ -159,5 +135,22 @@ public class EasyPref {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    private static boolean isFieldStringSet(Field field) {
+        if (field.getType().isAssignableFrom(Set.class)) {
+            Type tp = field.getGenericType();
+            if (tp != null && tp instanceof ParameterizedType) {
+                ParameterizedType pt = (ParameterizedType) tp;
+                Type[] types = pt.getActualTypeArguments();
+                if (types.length == 1) {
+                    Class genericClazz = (Class) pt.getActualTypeArguments()[0];
+                    if (genericClazz.getCanonicalName().equals(String.class.getCanonicalName())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
