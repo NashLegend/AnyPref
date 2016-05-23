@@ -3,13 +3,12 @@ package net.nashlegend.easypref;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import net.nashlegend.easypref.annotations.Pref;
+import net.nashlegend.annotations.Pref;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -104,71 +103,6 @@ public class EasyPref {
             }
         } catch (IllegalAccessException e) {
             e.printStackTrace();
-        }
-    }
-
-    static class Sample {
-        @Pref
-        public int intField = 65535;
-        @Pref
-        public float floatField = 1.235f;
-        @Pref
-        public long longField = 95789465213L;
-        public String stringField = "string";
-        public boolean boolField = false;
-        public Set<String> setValue = new LinkedHashSet<>();
-    }
-
-    static class SamplePref {
-
-        //写入与读取应该都是写缓存的数据
-
-        public String prefName = "sample";
-
-        public Sample cachedInstance;
-
-        public int intField = 65535;
-        public float floatField = 1.235f;
-        public long longField = 95789465213L;
-        public String stringField = "string";
-        public boolean boolField = false;
-        public Set<String> setValue = new LinkedHashSet<>();
-        public Sample sample = new Sample();
-
-        public Sample read() {
-            if (cachedInstance == null) {
-                SharedPreferences prefs = context.getSharedPreferences(prefName, Context.MODE_PRIVATE);
-                Sample sample = new Sample();
-                sample.intField = prefs.getInt("", 0);
-                sample.floatField = prefs.getFloat("", 0);
-                sample.longField = prefs.getLong("", 0);
-                sample.stringField = prefs.getString("", null);
-                sample.boolField = prefs.getBoolean("", false);
-                sample.setValue = prefs.getStringSet("", null);
-            }
-            return cachedInstance;
-        }
-
-        public void save() {
-            context
-                    .getSharedPreferences(prefName, Context.MODE_PRIVATE)
-                    .edit()
-                    .putInt("intField", intField)
-                    .putFloat("floatField", floatField)
-                    .putLong("longField", longField)
-                    .putString("stringField", stringField)
-                    .putBoolean("boolField", boolField)
-                    .putStringSet("setValue", setValue)
-                    .apply();
-        }
-
-        public void mirrorObject(Sample sample) {
-            this.intField = sample.intField;
-            this.floatField = sample.floatField;
-            this.longField = sample.longField;
-            this.stringField = sample.stringField;
-            this.boolField = sample.boolField;
-            this.setValue = sample.setValue;
         }
     }
 }
