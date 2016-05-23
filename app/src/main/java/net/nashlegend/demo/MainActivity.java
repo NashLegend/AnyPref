@@ -38,10 +38,10 @@ public class MainActivity extends AppCompatActivity {
             sets.add("4");
             sets.add("5");
             sample.setValue = sets;
-            EasyPref.apply(sample, this);
+            AnyPref.apply(sample, this);
             System.out.println(System.currentTimeMillis()-start);
             start = System.currentTimeMillis();
-            EasyPref.get(sample.getClass(), this);
+            AnyPref.get(sample.getClass(), this);
             System.out.println(System.currentTimeMillis()-start);
         } catch (Exception e) {
             e.printStackTrace();

@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 应该满足动态定义PrefName的需求，比如为不同的用户添加不同的名字
  */
 @SuppressWarnings("unchecked")
-public class EasyPref {
+public class AnyPref {
 
     private static ConcurrentHashMap<String, Field[]> fieldsMap = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<String, Boolean> setMap = new ConcurrentHashMap<>();
