@@ -22,31 +22,37 @@ import java.util.concurrent.ConcurrentHashMap;
 @SuppressWarnings("unchecked")
 public class AnyPref {
 
+    private static Context mContext;
+
+    public static void init(Context context) {
+        mContext = context;
+    }
+
     /**
      * 返回一个SharedPrefs对象，可进行指定名字的SharedPreferences的读写
      */
-    public static SharedPrefs getPrefs(String key, Context context) {
-        return new SharedPrefs(key, context);
+    public static SharedPrefs getPrefs(String key) {
+        return new SharedPrefs(key, mContext);
     }
 
     /**
      * 返回一个SharedPrefs对象，可进行指定类的SharedPreferences的读写
      */
-    public static SharedPrefs getPrefs(Class clazz, Context context) {
-        return new SharedPrefs(getKeyForClazz(clazz), context);
+    public static SharedPrefs getPrefs(Class clazz) {
+        return new SharedPrefs(getKeyForClazz(clazz), mContext);
     }
 
     /**
      * 从SharedPreferences中清除一个实例
      */
-    public static void clear(Class clazz, Context context) {
-        new SharedPrefs(getKeyForClazz(clazz), context).clear();
+    public static void clear(Class clazz) {
+        new SharedPrefs(getKeyForClazz(clazz), mContext).clear();
     }
 
     /**
      * 从SharedPreferences中读取一个实例
      */
-    public static <T> T read(Class<T> clazz, Context context) {
+    public static <T> T read(Class<T> clazz) {
         T obj;
         try {
             obj = clazz.newInstance();
@@ -56,7 +62,7 @@ public class AnyPref {
             throw new RuntimeException(e.getMessage());
         }
         for (Field field : getFields(clazz)) {
-            read(context.getSharedPreferences(getKeyForClazz(clazz), Context.MODE_PRIVATE), field, obj);
+            read(mContext.getSharedPreferences(getKeyForClazz(clazz), Context.MODE_PRIVATE), field, obj);
         }
         return obj;
     }
@@ -64,8 +70,8 @@ public class AnyPref {
     /**
      * 将一个对象实例保存到SharedPreferences中
      */
-    public static void save(Object object, Context context) {
-        SharedPreferences.Editor editor = context.getSharedPreferences(getKeyForClazz(object.getClass()),
+    public static void save(Object object) {
+        SharedPreferences.Editor editor = mContext.getSharedPreferences(getKeyForClazz(object.getClass()),
                 Context.MODE_PRIVATE).edit();
         for (Field field : getFields(object.getClass())) {
             put(editor, field, object);

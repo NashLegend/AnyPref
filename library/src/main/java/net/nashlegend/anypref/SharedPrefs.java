@@ -14,7 +14,6 @@ public class SharedPrefs {
     Context context;
     String prefName;
 
-    private SharedPreferences mSharedPreferences;
     private SharedPreferences.Editor mEditor;
 
     private boolean isInTransaction = false;
@@ -114,10 +113,7 @@ public class SharedPrefs {
     }
 
     public SharedPreferences getSharedPreferences() {
-        if (mSharedPreferences == null) {
-            mSharedPreferences = context.getSharedPreferences(prefName, Context.MODE_PRIVATE);
-        }
-        return mSharedPreferences;
+        return context.getSharedPreferences(prefName, Context.MODE_PRIVATE);
     }
 
     @SuppressLint("CommitPrefEdits")

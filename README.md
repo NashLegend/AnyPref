@@ -1,15 +1,21 @@
 一个SharedPreferences工具类
------------------------
+----------------------
+
+在应用的Application的```onCreate()```中添加如下代码（主要是为了省却后面要传入Context参数的麻烦）
+
+```
+    AnyPref.init(this);
+```
 
 ## 1. 读写任意数据
 
     ```
-        AnyPref.getPrefs("sample", this)//或者new SharedPrefs("sample", this)
+        AnyPref.getPrefs("sample")//或者new SharedPrefs("sample")
                 .putLong("long", 920394857382L)
                 .putInt("int", 63)
                 .putString("string", "sample string");
     
-        AnyPref.getPrefs(Sample.class, this)
+        AnyPref.getPrefs(Sample.class)
                 .beginTransaction()
                 .putLong("long", 920394857382L)
                 .putInt("int", 63)
@@ -43,7 +49,7 @@
 
 #### 保存数据:
 ```
-    AnyPref.save(sample，context);
+    AnyPref.save(sample);
 ```
 
 #### 读取数据

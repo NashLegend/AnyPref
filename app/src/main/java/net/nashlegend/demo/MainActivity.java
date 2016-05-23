@@ -26,34 +26,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void anyPref() {
-        long start = System.currentTimeMillis();
         Sample sample = new Sample();
         sample.boolField = true;
         sample.intField = 63;
         sample.floatField = 42.0f;
         sample.stringField = "sample string";
-        AnyPref.save(sample, this);
-        System.out.println(System.currentTimeMillis() - start);
-        start = System.currentTimeMillis();
-        AnyPref.read(Sample.class, this);
-        System.out.println(System.currentTimeMillis() - start);
-        AnyPref.clear(Sample.class, this);
+        AnyPref.save(sample);
+        AnyPref.read(Sample.class);
     }
 
     private void namedPref() {
-        AnyPref.getPrefs("sample", this)
+        AnyPref.getPrefs(getLocalClassName())
                 .putLong("long", 920394857382L)
                 .putInt("int", 63)
                 .putString("string", "sample string");
 
-        AnyPref.getPrefs(Sample.class, this)
+        AnyPref.getPrefs(Sample.class)
                 .beginTransaction()
                 .putLong("long", 920394857382L)
                 .putInt("int", 63)
                 .putString("string", "sample string")
                 .commit();
 
-        SharedPrefs sharedPrefs = AnyPref.getPrefs("sample", this);
+        SharedPrefs sharedPrefs = AnyPref.getPrefs(getLocalClassName());
         System.out.println(sharedPrefs.getInt("int", 0));
         System.out.println(sharedPrefs.getLong("long", 0));
         System.out.println(sharedPrefs.getString("string", ""));
