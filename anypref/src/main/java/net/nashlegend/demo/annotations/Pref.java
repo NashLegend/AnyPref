@@ -13,8 +13,5 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(FIELD)
 @Retention(RUNTIME)
 public @interface Pref {
-    String value() default "";
-
-    // TODO: 16/5/22 默认参数，先不加 
-//    String[] def() default "";
+    String value();
 }
