@@ -9,24 +9,24 @@
 
 ## 1. 读写任意数据
 
-    ```
-        AnyPref.getPrefs("sample")//或者new SharedPrefs("sample")
-                .putLong("long", 920394857382L)
-                .putInt("int", 63)
-                .putString("string", "sample string");
-    
-        AnyPref.getPrefs(Sample.class)
-                .beginTransaction()
-                .putLong("long", 920394857382L)
-                .putInt("int", 63)
-                .putString("string", "sample string")
-                .commit();
-    
-        SharedPrefs sharedPrefs = AnyPref.getPrefs("sample", this);
-        System.out.println(sharedPrefs.getInt("int", 0));
-        System.out.println(sharedPrefs.getLong("long", 0));
-        System.out.println(sharedPrefs.getString("string", ""));
-    ```
+```
+    AnyPref.getPrefs("sample")//或者new SharedPrefs("sample")
+            .putLong("long", 920394857382L)
+            .putInt("int", 63)
+            .putString("string", "sample string");
+
+    AnyPref.getPrefs(Sample.class)
+            .beginTransaction()
+            .putLong("long", 920394857382L)
+            .putInt("int", 63)
+            .putString("string", "sample string")
+            .commit();
+
+    SharedPrefs sharedPrefs = AnyPref.getPrefs("sample", this);
+    System.out.println(sharedPrefs.getInt("int", 0));
+    System.out.println(sharedPrefs.getLong("long", 0));
+    System.out.println(sharedPrefs.getString("string", ""));
+```
 
 
 ## 2. 读写实例对象
