@@ -43,4 +43,6 @@ public class Sample {
     public boolean boolField123 = false;
     @PrefField(string = "Default")
     public String stringField123 = "NotDefault";
+
+    private String dd = "ll";
 }

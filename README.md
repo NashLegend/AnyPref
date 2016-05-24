@@ -68,3 +68,18 @@ PS，对于实例对象的读写：
 1. 只支持SharedPreferences支持的数据类型;
 2. 只会保存修饰符为```public```的变量，```static```与```final```的变量均不会保存;
 3. 保存的类需要支持无参构造函数
+
+
+##### 如果使用了ProGuard，在proguard配置文件中添加
+
+```
+-keep class net.nashlegend.demo.Sample{ *; }
+```
+或者
+```
+-keepclasseswithmembernames class net.nashlegend.demo.Sample {
+   public <fields>;
+}
+```
+
+将```net.nashlegend.demo.Sample```成对应的类

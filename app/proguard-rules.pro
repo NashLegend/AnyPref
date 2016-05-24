@@ -15,3 +15,8 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+#-keep class net.nashlegend.demo.Sample{ *; }
+-keepclasseswithmembernames class net.nashlegend.demo.Sample {
+   public <fields>;
+}
