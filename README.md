@@ -82,4 +82,4 @@ PS，对于实例对象的读写：
 }
 ```
 
-将```net.nashlegend.demo.Sample```成对应的类
+将```net.nashlegend.demo.Sample```改成对应的类
