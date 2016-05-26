@@ -1,5 +1,23 @@
-一个SharedPreferences工具类
+# 一个SharedPreferences工具类
 ----------------------
+[![](https://jitpack.io/v/NashLegend/AnyPref.svg)](https://jitpack.io/#NashLegend/AnyPref)
+
+在工程根目录build.gradle添加jitpack:
+```gradle
+allprojects {
+    repositories {
+        maven { url "https://jitpack.io" }
+    }
+}
+```
+
+在使用AnyPref的模块中添加:
+
+```gradle
+dependencies {
+    compile 'com.github.NashLegend:AnyPref:1.0.0'
+}
+```
 
 在应用的Application的```onCreate()```中添加如下代码（主要是为了省却后面要传入Context参数的麻烦）
 
