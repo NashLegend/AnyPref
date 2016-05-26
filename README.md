@@ -1,5 +1,5 @@
 # 一个SharedPreferences工具类
-----------------------
+
 [![](https://jitpack.io/v/NashLegend/AnyPref.svg)](https://jitpack.io/#NashLegend/AnyPref)
 
 在工程根目录build.gradle添加jitpack:
