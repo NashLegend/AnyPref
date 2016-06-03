@@ -50,7 +50,19 @@ public class AnyPref {
      * 从SharedPreferences中清除一个实例
      */
     public static void clear(Class clazz) {
-        new SharedPrefs(getKeyForClazz(clazz), mContext).clear();
+        clear(clazz, getKeyForClazz(clazz));
+    }
+
+    /**
+     * 从SharedPreferences中清除一个实例
+     */
+    private static void clear(Class clazz, String prefKey) {
+        for (Field field : getFields(clazz)) {
+            if (isSubPref(field)) {
+                clear(field.getType(), prefKey + "$$$" + getKeyForField(field));
+            }
+        }
+        getPrefs(prefKey).clear();
     }
 
     /**
