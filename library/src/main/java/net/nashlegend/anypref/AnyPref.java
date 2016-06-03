@@ -27,9 +27,36 @@ public class AnyPref {
     private static final String EXISTS_KEY = "key.i.am.here";
 
     private static Context mContext;
+    /**
+     * 字段缓存
+     */
+    private static ConcurrentHashMap<String, ArrayList<Field>> fieldsMap = new ConcurrentHashMap<>();
+    /**
+     * 判断字段是不是Set<String>的缓存
+     */
+    private static ConcurrentHashMap<String, Boolean> strSetMap = new ConcurrentHashMap<>();
+    /**
+     * 保存实例的SharedPreferences的name缓存
+     */
+    private static ConcurrentHashMap<String, String> classKeyMap = new ConcurrentHashMap<>();
+    /**
+     * 保存字段时使用的Key的缓存
+     */
+    private static ConcurrentHashMap<String, String> fieldKeyMap = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, Double> defaultNumberMap = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, Boolean> defaultBooleanMap = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, String> defaultStringMap = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, Set<String>> defaultStringSetMap = new ConcurrentHashMap<>();
 
     public static void init(Context context) {
         mContext = context;
+    }
+
+    /**
+     * 返回默认SharedPrefs对象
+     */
+    public static SharedPrefs getDefault() {
+        return new SharedPrefs(mContext.getPackageName() + "_preferences", mContext);
     }
 
     /**
@@ -56,7 +83,7 @@ public class AnyPref {
     /**
      * 从SharedPreferences中清除一个实例
      */
-    private static void clear(Class clazz, String prefKey) {
+    public static void clear(Class clazz, String prefKey) {
         for (Field field : getFields(clazz)) {
             if (isSubPref(field)) {
                 clear(field.getType(), prefKey + "$$$" + getKeyForField(field));
@@ -75,7 +102,7 @@ public class AnyPref {
     /**
      * 从SharedPreferences中读取一个实例
      */
-    private static <T> T read(Class<T> clazz, String customKey) {
+    public static <T> T read(Class<T> clazz, String customKey) {
         T obj;
         try {
             obj = clazz.newInstance();
@@ -104,7 +131,7 @@ public class AnyPref {
     /**
      * 将一个对象实例保存到SharedPreferences中
      */
-    private static void save(Object object, String customKey) {
+    public static void save(Object object, String customKey) {
         if (object == null || customKey == null) {
             return;
         }
@@ -344,29 +371,6 @@ public class AnyPref {
     private static String getCacheKeyForField(Field field) {
         return field.getDeclaringClass().getCanonicalName() + "$$" + field.getName();
     }
-
-    ///////下面这一片可以再封装一下
-    /**
-     * 字段缓存
-     */
-    private static ConcurrentHashMap<String, ArrayList<Field>> fieldsMap = new ConcurrentHashMap<>();
-    /**
-     * 判断字段是不是Set<String>的缓存
-     */
-    private static ConcurrentHashMap<String, Boolean> strSetMap = new ConcurrentHashMap<>();
-    /**
-     * 保存实例的SharedPreferences的name缓存
-     */
-    private static ConcurrentHashMap<String, String> classKeyMap = new ConcurrentHashMap<>();
-    /**
-     * 保存字段时使用的Key的缓存
-     */
-    private static ConcurrentHashMap<String, String> fieldKeyMap = new ConcurrentHashMap<>();
-
-    private static ConcurrentHashMap<String, Double> defaultNumberMap = new ConcurrentHashMap<>();
-    private static ConcurrentHashMap<String, Boolean> defaultBooleanMap = new ConcurrentHashMap<>();
-    private static ConcurrentHashMap<String, String> defaultStringMap = new ConcurrentHashMap<>();
-    private static ConcurrentHashMap<String, Set<String>> defaultStringSetMap = new ConcurrentHashMap<>();
 
     private static double getDefaultNumber(String key) {
         Double num = defaultNumberMap.get(key);
