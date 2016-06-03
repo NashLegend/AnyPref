@@ -3,6 +3,7 @@ package net.nashlegend.demo;
 import net.nashlegend.anypref.annotations.PrefField;
 import net.nashlegend.anypref.annotations.PrefIgnore;
 import net.nashlegend.anypref.annotations.PrefModel;
+import net.nashlegend.anypref.annotations.PrefSub;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -11,7 +12,7 @@ import java.util.Set;
  * Created by NashLegend on 16/5/22.
  */
 @PrefModel("SampleKeys")
-public class Sample extends SampleFather {
+public class Sample extends SampleSub {
     @PrefField("intKey")
     public int intField = 65535;
     @PrefIgnore
@@ -45,4 +46,10 @@ public class Sample extends SampleFather {
     public String stringField123 = "NotDefault";
 
     private String dd = "ll";
+    private String hidden = "hidden";
+
+    @PrefSub
+    public SampleSub son1;
+    @PrefSub
+    public SampleSub son2;
 }

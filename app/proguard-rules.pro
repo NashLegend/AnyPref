@@ -19,3 +19,7 @@
 -keepclasseswithmembernames class net.nashlegend.demo.Sample {
    public <fields>;
 }
+
+-keepclasseswithmembernames class net.nashlegend.demo.SampleSon {
+   public <fields>;
+}

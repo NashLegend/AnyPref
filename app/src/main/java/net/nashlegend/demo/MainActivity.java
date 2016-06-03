@@ -9,7 +9,6 @@ import net.nashlegend.anypref.AnyPref;
 import net.nashlegend.anypref.SharedPrefs;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,8 +34,16 @@ public class MainActivity extends AppCompatActivity {
         sample.intField = 63;
         sample.floatField = 42.0f;
         sample.stringField = "sample string";
+        SampleSub son1 = new SampleSub();
+        son1.name = "son1";
+        SampleSub son2 = new SampleSub();
+        son2.name = "son2";
+        sample.son1 = son1;
+        sample.son2 = son2;
         AnyPref.save(sample);
-        AnyPref.read(Sample.class);
+        Sample sampleOut = AnyPref.read(Sample.class);
+        System.out.println("son1:" + sampleOut.son1.name);
+        System.out.println("son2:" + sampleOut.son2.name);
     }
 
     private void namedPref() {
@@ -58,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         System.out.println(sharedPrefs.getString("string", ""));
     }
 
-    private void print(Class clazz){
+    private void print(Class clazz) {
         Field[] fieldArray = clazz.getFields();
         for (Field field : fieldArray) {
             System.out.println(field.getName());

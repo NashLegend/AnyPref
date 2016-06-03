@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @SuppressWarnings("unchecked")
 public class AnyPref {
+    private static final String EXISTS_KEY = "key.i.am.here";
 
     private static Context mContext;
 
@@ -82,6 +83,9 @@ public class AnyPref {
      * 将一个对象实例保存到SharedPreferences中
      */
     public static void save(Object object) {
+        if (object == null) {
+            return;
+        }
         save(object, getKeyForClazz(object.getClass()));
     }
 
@@ -89,6 +93,9 @@ public class AnyPref {
      * 将一个对象实例保存到SharedPreferences中
      */
     private static void save(Object object, String customKey) {
+        if (object == null || customKey == null) {
+            return;
+        }
         SharedPreferences.Editor editor = mContext.getSharedPreferences(customKey, Context.MODE_PRIVATE).edit();
         for (Field field : getFields(object.getClass())) {
             put(editor, field, object, customKey);
