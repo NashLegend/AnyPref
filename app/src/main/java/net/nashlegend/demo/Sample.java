@@ -11,7 +11,7 @@ import java.util.Set;
  * Created by NashLegend on 16/5/22.
  */
 @PrefModel("SampleKeys")
-public class Sample {
+public class Sample extends SampleFather {
     @PrefField("intKey")
     public int intField = 65535;
     @PrefIgnore

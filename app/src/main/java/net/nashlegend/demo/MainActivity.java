@@ -8,6 +8,9 @@ import android.widget.Button;
 import net.nashlegend.anypref.AnyPref;
 import net.nashlegend.anypref.SharedPrefs;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -21,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 anyPref();
                 namedPref();
+                print(Sample.class);
             }
         });
     }
@@ -52,5 +56,12 @@ public class MainActivity extends AppCompatActivity {
         System.out.println(sharedPrefs.getInt("int", 0));
         System.out.println(sharedPrefs.getLong("long", 0));
         System.out.println(sharedPrefs.getString("string", ""));
+    }
+
+    private void print(Class clazz){
+        Field[] fieldArray = clazz.getFields();
+        for (Field field : fieldArray) {
+            System.out.println(field.getName());
+        }
     }
 }

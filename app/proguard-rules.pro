@@ -16,7 +16,6 @@
 #   public *;
 #}
 
-#-keep class net.nashlegend.demo.Sample{ *; }
 -keepclasseswithmembernames class net.nashlegend.demo.Sample {
    public <fields>;
 }

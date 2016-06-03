@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import net.nashlegend.anypref.annotations.PrefField;
 import net.nashlegend.anypref.annotations.PrefIgnore;
 import net.nashlegend.anypref.annotations.PrefModel;
+import net.nashlegend.anypref.annotations.PrefSub;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -55,6 +56,13 @@ public class AnyPref {
      * 从SharedPreferences中读取一个实例
      */
     public static <T> T read(Class<T> clazz) {
+        return read(clazz, getKeyForClazz(clazz));
+    }
+
+    /**
+     * 从SharedPreferences中读取一个实例
+     */
+    private static <T> T read(Class<T> clazz, String customKey) {
         T obj;
         try {
             obj = clazz.newInstance();
@@ -63,8 +71,9 @@ public class AnyPref {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e.getMessage());
         }
+        SharedPreferences preferences = mContext.getSharedPreferences(customKey, Context.MODE_PRIVATE);
         for (Field field : getFields(clazz)) {
-            read(mContext.getSharedPreferences(getKeyForClazz(clazz), Context.MODE_PRIVATE), field, obj);
+            read(preferences, field, obj, customKey);
         }
         return obj;
     }
@@ -73,10 +82,16 @@ public class AnyPref {
      * 将一个对象实例保存到SharedPreferences中
      */
     public static void save(Object object) {
-        SharedPreferences.Editor editor = mContext.getSharedPreferences(getKeyForClazz(object.getClass()),
-                Context.MODE_PRIVATE).edit();
+        save(object, getKeyForClazz(object.getClass()));
+    }
+
+    /**
+     * 将一个对象实例保存到SharedPreferences中
+     */
+    private static void save(Object object, String customKey) {
+        SharedPreferences.Editor editor = mContext.getSharedPreferences(customKey, Context.MODE_PRIVATE).edit();
         for (Field field : getFields(object.getClass())) {
-            put(editor, field, object);
+            put(editor, field, object, customKey);
         }
         editor.apply();
     }
@@ -84,7 +99,7 @@ public class AnyPref {
     /**
      * 将一个变量保存到SharedPreferences中
      */
-    private static void put(SharedPreferences.Editor editor, Field field, Object object) {
+    private static void put(SharedPreferences.Editor editor, Field field, Object object, String prefKey) {
         String key = getKeyForField(field);
         String type = field.getType().getCanonicalName();
         try {
@@ -105,16 +120,20 @@ public class AnyPref {
                     editor.putString(key, String.valueOf(field.get(object)));
                     break;
                 default:
-                    String mapKey = getKeyForClazz(object.getClass()) + "$$" + key;
-                    Boolean result = strSetMap.get(mapKey);
-                    if (result == null) {
-                        boolean isSet = isFieldStringSet(field);
-                        if (isSet) {
+                    if (isSubPref(field)) {
+                        save(field.get(object), prefKey + "$$$" + key);
+                    } else {
+                        String mapKey = object.getClass().getCanonicalName() + "$$" + key;
+                        Boolean result = strSetMap.get(mapKey);
+                        if (result == null) {
+                            boolean isSet = isFieldStringSet(field);
+                            if (isSet) {
+                                editor.putStringSet(key, (Set<String>) field.get(object));
+                            }
+                            strSetMap.put(mapKey, isSet);
+                        } else if (result) {
                             editor.putStringSet(key, (Set<String>) field.get(object));
                         }
-                        strSetMap.put(mapKey, isSet);
-                    } else if (result) {
-                        editor.putStringSet(key, (Set<String>) field.get(object));
                     }
                     break;
             }
@@ -126,7 +145,7 @@ public class AnyPref {
     /**
      * 从SharedPreferences读取一个变量并赋值
      */
-    private static void read(SharedPreferences preferences, Field field, Object object) {
+    private static void read(SharedPreferences preferences, Field field, Object object, String prefKey) {
         String cacheKey = getCacheKeyForField(field);
         String key = getKeyForField(field);
         String type = field.getType().getCanonicalName();
@@ -148,16 +167,20 @@ public class AnyPref {
                     field.set(object, preferences.getString(key, getDefaultString(cacheKey)));
                     break;
                 default:
-                    String mapKey = getKeyForClazz(object.getClass()) + "$$" + key;
-                    Boolean result = strSetMap.get(mapKey);
-                    if (result == null) {
-                        boolean isSet = isFieldStringSet(field);
-                        if (isSet) {
+                    if (isSubPref(field)) {
+                        field.set(object, read(field.getType(), prefKey + "$$$" + key));
+                    } else {
+                        String mapKey = object.getClass().getCanonicalName() + "$$" + key;
+                        Boolean result = strSetMap.get(mapKey);
+                        if (result == null) {
+                            boolean isSet = isFieldStringSet(field);
+                            if (isSet) {
+                                field.set(object, preferences.getStringSet(key, getDefaultStringSet(cacheKey)));
+                            }
+                            strSetMap.put(mapKey, isSet);
+                        } else if (result) {
                             field.set(object, preferences.getStringSet(key, getDefaultStringSet(cacheKey)));
                         }
-                        strSetMap.put(mapKey, isSet);
-                    } else if (result) {
-                        field.set(object, preferences.getStringSet(key, getDefaultStringSet(cacheKey)));
                     }
                     break;
             }
@@ -184,6 +207,13 @@ public class AnyPref {
             }
         }
         return false;
+    }
+
+    /**
+     * 判断变量是否是一个要读取其他Preference的对象
+     */
+    private static boolean isSubPref(Field field) {
+        return field.isAnnotationPresent(PrefSub.class);
     }
 
     /**
