@@ -22,34 +22,34 @@ public class Sample extends SampleSub {
     public boolean boolField = false;
     public Set<String> setValue = new LinkedHashSet<>();
     public int intField2 = 65535;
-    public float floatField32 = 1.235f;
-    public long longField1 = 95789465213L;
+    public float floatField2 = 1.235f;
+    public long longField2 = 95789465213L;
+    public String stringField2 = "string";
+    public boolean boolField2 = false;
+    public Set<String> setValue2 = new LinkedHashSet<>();
+    public int intField3 = 65535;
+    public float floatField3 = 1.235f;
+    public long longField3 = 95789465213L;
     public String stringField3 = "string";
     public boolean boolField3 = false;
     public Set<String> setValue3 = new LinkedHashSet<>();
-    public int intField1 = 65535;
-    public float floatField2 = 1.235f;
-    public long longField3 = 95789465213L;
-    public String stringField4 = "string";
-    public boolean boolField5 = false;
-    public Set<String> setValue6 = new LinkedHashSet<>();
 
     @PrefField(number = 110)
-    public long longField123 = 95789465213L;
+    public long longField4 = 95789465213L;
     @PrefField(number = 110)
-    public int intField123 = 2;
+    public int intField4 = 2;
     @PrefField(number = 110)
-    public float floatField123 = 1.2f;
+    public float floatField4 = 1.2f;
     @PrefField(bool = true)
-    public boolean boolField123 = false;
+    public boolean boolField4 = false;
     @PrefField(string = "Default")
-    public String stringField123 = "NotDefault";
+    public String stringField4 = "NotDefault";
 
-    private String dd = "ll";
-    private String hidden = "hidden";
+    private String pvString = "private";
+    private int pvInt = 10010;
 
     @PrefSub
     public SampleSub son1;
-    @PrefSub
+
     public SampleSub son2;
 }

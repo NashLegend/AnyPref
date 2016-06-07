@@ -40,8 +40,8 @@ public class MainActivity extends AppCompatActivity {
         son2.name = "son2";
         sample.son1 = son1;
         sample.son2 = son2;
-        AnyPref.save(sample);
-        Sample sampleOut = AnyPref.read(Sample.class);
+        AnyPref.put(sample);
+        Sample sampleOut = AnyPref.get(Sample.class);
         System.out.println("son1:" + sampleOut.son1.name);
         System.out.println("son2:" + sampleOut.son2.name);
     }

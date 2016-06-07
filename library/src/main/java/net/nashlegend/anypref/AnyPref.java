@@ -62,14 +62,14 @@ public class AnyPref {
     /**
      * 从SharedPreferences中读取一个实例
      */
-    public static <T> T read(Class<T> clazz) {
-        return read(clazz, PrefUtil.getKeyForClazz(clazz));
+    public static <T> T get(Class<T> clazz) {
+        return get(clazz, PrefUtil.getKeyForClazz(clazz));
     }
 
     /**
      * 从SharedPreferences中读取一个实例
      */
-    public static <T> T read(Class<T> clazz, String customKey) {
+    public static <T> T get(Class<T> clazz, String customKey) {
         T obj;
         try {
             obj = clazz.newInstance();
@@ -80,7 +80,7 @@ public class AnyPref {
         }
         SharedPreferences preferences = mContext.getSharedPreferences(customKey, Context.MODE_PRIVATE);
         for (Field field : PrefUtil.getFields(clazz)) {
-            read(preferences, field, obj, customKey);
+            get(preferences, field, obj, customKey);
         }
         return obj;
     }
@@ -88,17 +88,17 @@ public class AnyPref {
     /**
      * 将一个对象实例保存到SharedPreferences中
      */
-    public static void save(Object object) {
+    public static void put(Object object) {
         if (object == null) {
             return;
         }
-        save(object, PrefUtil.getKeyForClazz(object.getClass()));
+        put(object, PrefUtil.getKeyForClazz(object.getClass()));
     }
 
     /**
      * 将一个对象实例保存到SharedPreferences中
      */
-    public static void save(Object object, String customKey) {
+    public static void put(Object object, String customKey) {
         if (object == null || customKey == null) {
             return;
         }
@@ -134,7 +134,7 @@ public class AnyPref {
                     break;
                 default:
                     if (PrefUtil.isSubPref(field)) {
-                        save(field.get(object), prefKey + "$$$" + key);
+                        put(field.get(object), prefKey + "$$$" + key);
                     } else if (PrefUtil.isFieldStringSet(field)) {
                         editor.putStringSet(key, (Set<String>) field.get(object));
                     }
@@ -148,7 +148,7 @@ public class AnyPref {
     /**
      * 从SharedPreferences读取一个变量并赋值
      */
-    private static void read(SharedPreferences preferences, Field field, Object object, String prefKey) {
+    private static void get(SharedPreferences preferences, Field field, Object object, String prefKey) {
         String cacheKey = PrefUtil.getCacheKeyForField(field);
         String key = PrefUtil.getKeyForField(field);
         String type = field.getType().getCanonicalName();
@@ -171,7 +171,7 @@ public class AnyPref {
                     break;
                 default:
                     if (PrefUtil.isSubPref(field)) {
-                        field.set(object, read(field.getType(), prefKey + "$$$" + key));
+                        field.set(object, get(field.getType(), prefKey + "$$$" + key));
                     } else if (PrefUtil.isFieldStringSet(field)) {
                         field.set(object, preferences.getStringSet(key, PrefUtil.getDefaultStringSet(cacheKey)));
                     }
