@@ -4,10 +4,18 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Set;
 
 /**
  * Created by NashLegend on 16/5/20.
+ * 保存PrefSub的key是父Object的key+$$$+此PrefSub自己的fieldKey，如"Sample$$$son1";三个$
+ * <p/>
+ * 保存PrefArray的key是父Object的key+$$$$+此PrefSub自己的fieldKey+_array_i，如 "Sample$$$$myArrays_array_3";
+ * PrefArray的长度需要保存在一个Key里，key名为父Object的key+$$$$+此PrefSub自己的fieldKey+_array_length，如 "Sample$$$$myArrays_array_length";四个$
+ * <p/>
+ * 保存PrefArrayList的key是父Object的key+$$$$$+此PrefSub自己的fieldKey+_array_i，如 "Sample$$$$$myArrays_arraylist_3";
+ * PrefArrayList的长度需要保存在一个Key里，key名为父Object的key+$$$$$+此PrefSub自己的fieldKey+_array_length，如 "Sample$$$$$myArrays_arraylist_length";五个$
  */
 @SuppressWarnings("unchecked")
 public class AnyPref {
@@ -54,6 +62,10 @@ public class AnyPref {
         for (Field field : PrefUtil.getFields(clazz)) {
             if (PrefUtil.isSubPref(field)) {
                 clear(field.getType(), prefKey + "$$$" + PrefUtil.getKeyForField(field));
+            } else if (PrefUtil.isArrayPref(field)) {
+                // TODO: 16/6/8
+            } else if (PrefUtil.isArrayListPref(field)) {
+                // TODO: 16/6/8
             }
         }
         getPrefs(prefKey).clear();
@@ -135,6 +147,10 @@ public class AnyPref {
                 default:
                     if (PrefUtil.isSubPref(field)) {
                         put(field.get(object), prefKey + "$$$" + key);
+                    } else if (PrefUtil.isArrayPref(field)) {
+                        // TODO: 16/6/8
+                    } else if (PrefUtil.isArrayListPref(field)) {
+                        // TODO: 16/6/8
                     } else if (PrefUtil.isFieldStringSet(field)) {
                         editor.putStringSet(key, (Set<String>) field.get(object));
                     }
@@ -172,6 +188,10 @@ public class AnyPref {
                 default:
                     if (PrefUtil.isSubPref(field)) {
                         field.set(object, get(field.getType(), prefKey + "$$$" + key));
+                    } else if (PrefUtil.isArrayPref(field)) {
+                        // TODO: 16/6/8
+                    } else if (PrefUtil.isArrayListPref(field)) {
+                        // TODO: 16/6/8
                     } else if (PrefUtil.isFieldStringSet(field)) {
                         field.set(object, preferences.getStringSet(key, PrefUtil.getDefaultStringSet(cacheKey)));
                     }
@@ -180,6 +200,15 @@ public class AnyPref {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    public static ArrayList getArrayList(Field field, String prefKey) {
+        ArrayList arrayList = new ArrayList();
+        return null;
+    }
+
+    public static ArrayList getArray() {
+        return null;
     }
 
 }

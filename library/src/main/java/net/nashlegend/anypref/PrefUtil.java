@@ -2,6 +2,8 @@ package net.nashlegend.anypref;
 
 import android.text.TextUtils;
 
+import net.nashlegend.anypref.annotations.PrefArray;
+import net.nashlegend.anypref.annotations.PrefArrayList;
 import net.nashlegend.anypref.annotations.PrefField;
 import net.nashlegend.anypref.annotations.PrefIgnore;
 import net.nashlegend.anypref.annotations.PrefModel;
@@ -79,6 +81,20 @@ public class PrefUtil {
      */
     public static boolean isSubPref(Field field) {
         return field.isAnnotationPresent(PrefSub.class);
+    }
+
+    /**
+     * 判断变量是否是一个要读取其他Preference的对象
+     */
+    public static boolean isArrayPref(Field field) {
+        return field.isAnnotationPresent(PrefArray.class);
+    }
+
+    /**
+     * 判断变量是否是一个要读取其他Preference的对象
+     */
+    public static boolean isArrayListPref(Field field) {
+        return field.isAnnotationPresent(PrefArrayList.class);
     }
 
     /**
