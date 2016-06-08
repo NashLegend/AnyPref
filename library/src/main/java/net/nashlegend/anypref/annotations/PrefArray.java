@@ -12,5 +12,5 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(FIELD)
 @Retention(RUNTIME)
 public @interface PrefArray {
-    // TODO: 16/6/8  
+    // TODO: 16/6/8
 }

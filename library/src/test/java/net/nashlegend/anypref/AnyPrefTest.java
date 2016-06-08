@@ -14,6 +14,10 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /**
  * Created by NashLegend on 16/6/7.
  */
@@ -93,6 +97,14 @@ public class AnyPrefTest {
         Assert.assertEquals(110, shadowSample.floatFieldDefault, 0.0001);
         Assert.assertEquals(true, shadowSample.boolFieldDefault);
         Assert.assertEquals("Default", shadowSample.stringFieldDefault);
+
+        Set<String> copied = shadowSample.setValueDefault;
+        Assert.assertNotNull(copied);
+        int i = 1;
+        for (String s : copied) {
+            Assert.assertEquals(String.valueOf(i), s);
+            i++;
+        }
     }
 
     @Test
@@ -225,6 +237,50 @@ public class AnyPrefTest {
         Assert.assertNull(shadowSample.son2);
 
         Assert.assertEquals("subSampleTest", shadowSample.son1.name);
+    }
+
+    @Test
+    public void testStringSet() throws Exception {
+        Sample sample = new Sample();
+        HashSet<String> set = new LinkedHashSet<>();
+        set.add("1");
+        set.add("2");
+        set.add("3");
+        set.add("4");
+
+        sample.setValue = set;
+        AnyPref.put(sample, "sample");
+
+        Sample shadowSample = AnyPref.get(Sample.class, "sample");
+        Set<String> copied = shadowSample.setValue;
+        Assert.assertNotNull(copied);
+        int i = 1;
+        for (String s : copied) {
+            Assert.assertEquals(String.valueOf(i), s);
+            i++;
+        }
+    }
+
+    @Test
+    public void testStringSetDefault() throws Exception {
+        Sample sample = new Sample();
+        HashSet<String> set = new LinkedHashSet<>();
+        set.add("1");
+        set.add("2");
+        set.add("3");
+        set.add("4");
+
+        sample.setValue = set;
+        AnyPref.put(sample, "sample");
+
+        Sample shadowSample = AnyPref.get(Sample.class, "sample");
+        Set<String> copied = shadowSample.setValue;
+        Assert.assertNotNull(copied);
+        int i = 1;
+        for (String s : copied) {
+            Assert.assertEquals(String.valueOf(i), s);
+            i++;
+        }
     }
 
     @Test

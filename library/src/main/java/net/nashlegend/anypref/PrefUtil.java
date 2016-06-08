@@ -13,7 +13,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -182,7 +182,7 @@ public class PrefUtil {
                     if (isFieldStringSet(field)) {
                         String[] sets = pref.string();
                         if (sets != null) {
-                            HashSet<String> hashSet = new HashSet<>();
+                            LinkedHashSet<String> hashSet = new LinkedHashSet<>();
                             hashSet.addAll(Arrays.asList(pref.string()));
                             defaultStringSetMap.put(cacheKey, hashSet);
                         }
