@@ -40,7 +40,7 @@ dependencies {
             .putString("string", "sample string")
             .commit();
 
-    SharedPrefs sharedPrefs = AnyPref.getPrefs("sample", this);
+    SharedPrefs sharedPrefs = AnyPref.getPrefs("sample");
     System.out.println(sharedPrefs.getInt("int", 0));
     System.out.println(sharedPrefs.getLong("long", 0));
     System.out.println(sharedPrefs.getString("string", ""));
@@ -54,7 +54,7 @@ dependencies {
 ```
     @PrefModel("prefName")//可不添加此注解，"prefName"表示保存SharedPreferences的name，可为任意String字符串，如果不写，则为类的全名
     public class Sample {
-        @PrefField("intFieldKey")//可不添加此注解，"Integer"表示保存此值时的key，可为任意String字符串，如果不写，则为此变量的变量名
+        @PrefField("intFieldKey")//可不添加此注解，"intFieldKey"表示保存此值时的key，可为任意String字符串，如果不写，则为此变量的变量名
         public int intField = 32;
         @PrefIgnore//添加此注解表示不保存这个变量
         public float floatField = 1.2345f;
