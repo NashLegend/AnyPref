@@ -313,10 +313,13 @@ public class AnyPrefTest {
 
         AnyPref.put(sample);
 
+        String key = "SampleKeys$$$$sampleArrayList_arraylist_0";
+        SubSample shadowSubSample1 = AnyPref.get(SubSample.class, key);
+        Assert.assertTrue(shadowSubSample1.name.startsWith("index"));
+
         AnyPref.clear(Sample.class);
 
-        String key = "SampleKeys$$$$sampleArrayList_arraylist_0";
-        SubSample shadowSubSample = AnyPref.get(SubSample.class, key);
-        Assert.assertNull(shadowSubSample.name);
+        SubSample shadowSubSample2 = AnyPref.get(SubSample.class, key);
+        Assert.assertNull(shadowSubSample2.name);
     }
 }
