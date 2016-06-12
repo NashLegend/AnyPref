@@ -74,5 +74,5 @@ public class Sample {
     private int pvInt = 10010;
 
     @PrefArrayList
-    public ArrayList<SubSample> sampleArrayList = new ArrayList<>();
+    public ArrayList<SubSample> sampleArrayList;
 }

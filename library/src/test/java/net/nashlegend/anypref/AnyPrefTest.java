@@ -316,10 +316,35 @@ public class AnyPrefTest {
         String key = "SampleKeys$$$$sampleArrayList_arraylist_0";
         SubSample shadowSubSample1 = AnyPref.get(SubSample.class, key);
         Assert.assertTrue(shadowSubSample1.name.startsWith("index"));
+        Assert.assertEquals(AnyPref.getPrefs(Sample.class).getInt("SampleKeys$$$$sampleArrayList_arraylist_length", 0), 5);
 
         AnyPref.clear(Sample.class);
 
         SubSample shadowSubSample2 = AnyPref.get(SubSample.class, key);
         Assert.assertNull(shadowSubSample2.name);
+        Assert.assertEquals(AnyPref.getPrefs(Sample.class).getInt("SampleKeys$$$$sampleArrayList_arraylist_length", 0), 0);
+    }
+
+    @Test
+    public void testSetArrayListDulplicate() throws Exception {
+        Sample sample = new Sample();
+        sample.sampleArrayList = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            SubSample subSample = new SubSample();
+            subSample.name = "index_" + i;
+            sample.sampleArrayList.add(subSample);
+        }
+
+        AnyPref.put(sample);
+        String key = "SampleKeys$$$$sampleArrayList_arraylist_0";
+        SubSample shadowSubSample1 = AnyPref.get(SubSample.class, key);
+        Assert.assertTrue(shadowSubSample1.name.startsWith("index"));
+        Assert.assertEquals(AnyPref.getPrefs(Sample.class).getInt("SampleKeys$$$$sampleArrayList_arraylist_length", 0), 5);
+
+        sample = new Sample();
+        AnyPref.put(sample);
+        SubSample shadowSubSample2 = AnyPref.get(SubSample.class, key);
+        Assert.assertNull(shadowSubSample2.name);
+        Assert.assertEquals(AnyPref.getPrefs(Sample.class).getInt("SampleKeys$$$$sampleArrayList_arraylist_length", 0), 0);
     }
 }

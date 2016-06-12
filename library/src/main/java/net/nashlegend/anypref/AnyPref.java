@@ -121,6 +121,9 @@ public class AnyPref {
         if (object == null || TextUtils.isEmpty(customKey)) {
             return;
         }
+
+        clear(object.getClass(), customKey);
+
         SharedPreferences.Editor editor = mContext.getSharedPreferences(customKey, Context.MODE_PRIVATE).edit();
         for (Field field : PrefUtil.getFields(object.getClass())) {
             put(editor, field, object, customKey);
@@ -214,7 +217,6 @@ public class AnyPref {
         for (int i = 0; i < length; i++) {
             keyList.add(PrefUtil.getArrayListItemKey(field, prefKey, i));
         }
-
         ArrayList arrayList = new ArrayList();
         for (int i = 0; i < keyList.size(); i++) {
             System.out.println(keyList.get(i));
