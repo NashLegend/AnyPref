@@ -14,6 +14,7 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -284,7 +285,38 @@ public class AnyPrefTest {
     }
 
     @Test
-    public void testSubPref() throws Exception {
+    public void testArrayList() throws Exception {
+        Sample sample = new Sample();
+        sample.sampleArrayList = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            SubSample subSample = new SubSample();
+            subSample.name = "index_" + i;
+            sample.sampleArrayList.add(subSample);
+        }
 
+        AnyPref.put(sample);
+
+        Sample shadowSample = AnyPref.get(Sample.class);
+
+        Assert.assertEquals(shadowSample.sampleArrayList.size(), 5);
+    }
+
+    @Test
+    public void testClearArrayList() throws Exception {
+        Sample sample = new Sample();
+        sample.sampleArrayList = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            SubSample subSample = new SubSample();
+            subSample.name = "index_" + i;
+            sample.sampleArrayList.add(subSample);
+        }
+
+        AnyPref.put(sample);
+
+        AnyPref.clear(Sample.class);
+
+        String key = "SampleKeys$$$$sampleArrayList_arraylist_0";
+        SubSample shadowSubSample = AnyPref.get(SubSample.class, key);
+        Assert.assertNull(shadowSubSample.name);
     }
 }

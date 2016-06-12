@@ -2,6 +2,7 @@ package net.nashlegend.anypref;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -11,11 +12,8 @@ import java.util.Set;
  * Created by NashLegend on 16/5/20.
  * 保存PrefSub的key是父Object的key+$$$+此PrefSub自己的fieldKey，如"Sample$$$son1";三个$
  * <p/>
- * 保存PrefArray的key是父Object的key+$$$$+此PrefSub自己的fieldKey+_array_i，如 "Sample$$$$myArrays_array_3";
- * PrefArray的长度需要保存在一个Key里，key名为父Object的key+$$$$+此PrefSub自己的fieldKey+_array_length，如 "Sample$$$$myArrays_array_length";四个$
- * <p/>
- * 保存PrefArrayList的key是父Object的key+$$$$$+此PrefSub自己的fieldKey+_array_i，如 "Sample$$$$$myArrays_arraylist_3";
- * PrefArrayList的长度需要保存在一个Key里，key名为父Object的key+$$$$$+此PrefSub自己的fieldKey+_array_length，如 "Sample$$$$$myArrays_arraylist_length";五个$
+ * 保存PrefArrayList的key是父Object的key+$$$$+fieldKey+_arraylist_+index，如 "Sample$$$$myArrayList_arraylist_3";
+ * PrefArrayList的长度需要保存在一个Key里，key名为父Object的key+$$$$+fieldKey+_arraylist_length，如 "Sample$$$$myArrayList_arraylist_length";四个$
  */
 @SuppressWarnings("unchecked")
 public class AnyPref {
@@ -52,29 +50,35 @@ public class AnyPref {
      * 从SharedPreferences中清除一个实例
      */
     public static void clear(Class clazz) {
-        clear(clazz, PrefUtil.getKeyForClazz(clazz));
+        if (clazz != null) {
+            clear(clazz, PrefUtil.getKeyForClazz(clazz));
+        }
     }
 
     /**
      * 从SharedPreferences中清除一个实例
      */
-    public static void clear(Class clazz, String prefKey) {
+    public static void clear(Class clazz, String customKey) {
+        if (clazz == null || TextUtils.isEmpty(customKey)) {
+            return;
+        }
         for (Field field : PrefUtil.getFields(clazz)) {
             if (PrefUtil.isSubPref(field)) {
-                clear(field.getType(), prefKey + "$$$" + PrefUtil.getKeyForField(field));
-            } else if (PrefUtil.isArrayPref(field)) {
-                // TODO: 16/6/8
+                clear(field.getType(), customKey + "$$$" + PrefUtil.getKeyForField(field));
             } else if (PrefUtil.isArrayListPref(field)) {
-                // TODO: 16/6/8
+                clearArrayList(field, customKey);
             }
         }
-        getPrefs(prefKey).clear();
+        getPrefs(customKey).clear();
     }
 
     /**
      * 从SharedPreferences中读取一个实例
      */
     public static <T> T get(Class<T> clazz) {
+        if (clazz == null) {
+            return null;
+        }
         return get(clazz, PrefUtil.getKeyForClazz(clazz));
     }
 
@@ -82,6 +86,9 @@ public class AnyPref {
      * 从SharedPreferences中读取一个实例
      */
     public static <T> T get(Class<T> clazz, String customKey) {
+        if (clazz == null || TextUtils.isEmpty(customKey)) {
+            return null;
+        }
         T obj;
         try {
             obj = clazz.newInstance();
@@ -111,7 +118,7 @@ public class AnyPref {
      * 将一个对象实例保存到SharedPreferences中
      */
     public static void put(Object object, String customKey) {
-        if (object == null || customKey == null) {
+        if (object == null || TextUtils.isEmpty(customKey)) {
             return;
         }
         SharedPreferences.Editor editor = mContext.getSharedPreferences(customKey, Context.MODE_PRIVATE).edit();
@@ -147,10 +154,11 @@ public class AnyPref {
                 default:
                     if (PrefUtil.isSubPref(field)) {
                         put(field.get(object), prefKey + "$$$" + key);
-                    } else if (PrefUtil.isArrayPref(field)) {
-                        // TODO: 16/6/8
                     } else if (PrefUtil.isArrayListPref(field)) {
-                        // TODO: 16/6/8
+                        Object arr = field.get(object);
+                        if (arr != null && arr instanceof ArrayList) {
+                            putArrayList(editor, (ArrayList) arr, field, prefKey);
+                        }
                     } else if (PrefUtil.isFieldStringSet(field)) {
                         editor.putStringSet(key, (Set<String>) field.get(object));
                     }
@@ -188,10 +196,8 @@ public class AnyPref {
                 default:
                     if (PrefUtil.isSubPref(field)) {
                         field.set(object, get(field.getType(), prefKey + "$$$" + key));
-                    } else if (PrefUtil.isArrayPref(field)) {
-                        // TODO: 16/6/8
                     } else if (PrefUtil.isArrayListPref(field)) {
-                        // TODO: 16/6/8
+                        field.set(object, getArrayList(preferences, field, prefKey));
                     } else if (PrefUtil.isFieldStringSet(field)) {
                         field.set(object, preferences.getStringSet(key, PrefUtil.getDefaultStringSet(cacheKey)));
                     }
@@ -202,13 +208,32 @@ public class AnyPref {
         }
     }
 
-    public static ArrayList getArrayList(Field field, String prefKey) {
+    private static ArrayList getArrayList(SharedPreferences preferences, Field field, String prefKey) {
+        int length = preferences.getInt(PrefUtil.getArrayListLengthKey(field, prefKey), 0);
+        ArrayList<String> keyList = new ArrayList<>(length);
+        for (int i = 0; i < length; i++) {
+            keyList.add(PrefUtil.getArrayListItemKey(field, prefKey, i));
+        }
+
         ArrayList arrayList = new ArrayList();
-        return null;
+        for (int i = 0; i < keyList.size(); i++) {
+            System.out.println(keyList.get(i));
+            arrayList.add(get(PrefUtil.getArrayListType(field), keyList.get(i)));
+        }
+        return arrayList;
     }
 
-    public static ArrayList getArray() {
-        return null;
+    private static void putArrayList(SharedPreferences.Editor editor, ArrayList arrayList, Field field, String prefKey) {
+        for (int i = 0; i < arrayList.size(); i++) {
+            put(arrayList.get(i), PrefUtil.getArrayListItemKey(field, prefKey, i));
+        }
+        editor.putInt(PrefUtil.getArrayListLengthKey(field, prefKey), arrayList.size());
     }
 
+    private static void clearArrayList(Field field, String prefKey) {
+        ArrayList<String> keys = PrefUtil.getArrayListKeys(field, prefKey);
+        for (int i = 0; i < keys.size(); i++) {
+            clear(PrefUtil.getArrayListType(field), keys.get(i));
+        }
+    }
 }

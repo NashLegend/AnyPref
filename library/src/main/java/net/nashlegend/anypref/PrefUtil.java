@@ -2,7 +2,6 @@ package net.nashlegend.anypref;
 
 import android.text.TextUtils;
 
-import net.nashlegend.anypref.annotations.PrefArray;
 import net.nashlegend.anypref.annotations.PrefArrayList;
 import net.nashlegend.anypref.annotations.PrefField;
 import net.nashlegend.anypref.annotations.PrefIgnore;
@@ -23,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by NashLegend on 16/6/7.
  */
 public class PrefUtil {
+    private static ConcurrentHashMap<String, Class> arraylistType = new ConcurrentHashMap<>();
     /**
      * 字段缓存
      */
@@ -45,7 +45,7 @@ public class PrefUtil {
     private static ConcurrentHashMap<String, Set<String>> defaultStringSetMap = new ConcurrentHashMap<>();
 
     public static boolean isFieldStringSet(Field field) {
-        String mapKey = field.getDeclaringClass().getCanonicalName() + "$$" + getKeyForField(field);
+        String mapKey = getCacheKeyForField(field);
         Boolean result = strSetMap.get(mapKey);
         if (result == null) {
             boolean isSet = checkIsFieldStringSet(field);
@@ -81,13 +81,6 @@ public class PrefUtil {
      */
     public static boolean isSubPref(Field field) {
         return field.isAnnotationPresent(PrefSub.class);
-    }
-
-    /**
-     * 判断变量是否是一个要读取其他Preference的对象
-     */
-    public static boolean isArrayPref(Field field) {
-        return field.isAnnotationPresent(PrefArray.class);
     }
 
     /**
@@ -237,4 +230,48 @@ public class PrefUtil {
     public static Set<String> getDefaultStringSet(String key) {
         return defaultStringSetMap.get(key);
     }
+
+    /**
+     * 返回不为空
+     */
+    public static ArrayList<String> getArrayListKeys(Field field, String prefKey) {
+        String lengthKey = getArrayListLengthKey(field, prefKey);
+        int length = AnyPref.getPrefs(prefKey).getInt(lengthKey, 0);
+        ArrayList<String> keyList = new ArrayList<>(length);
+        for (int i = 0; i < length; i++) {
+            keyList.add(getArrayListItemKey(field, prefKey, i));
+        }
+        return keyList;
+    }
+
+    public static Class getArrayListType(Field field) {
+        String mapKey = getCacheKeyForField(field);
+        Class result = arraylistType.get(mapKey);
+        if (result == null) {
+            if (field.getType().isAssignableFrom(ArrayList.class)) {
+                Type tp = field.getGenericType();
+                if (tp != null && tp instanceof ParameterizedType) {
+                    ParameterizedType pt = (ParameterizedType) tp;
+                    Type[] types = pt.getActualTypeArguments();
+                    if (types.length == 1) {
+                        Class genericClazz = (Class) pt.getActualTypeArguments()[0];
+                        arraylistType.put(mapKey, genericClazz);
+                        return genericClazz;
+                    }
+                }
+            }
+        } else {
+            return result;
+        }
+        return null;
+    }
+
+    public static String getArrayListItemKey(Field field, String prefKey, int index) {
+        return prefKey + "$$$$" + PrefUtil.getKeyForField(field) + "_arraylist_" + index;
+    }
+
+    public static String getArrayListLengthKey(Field field, String prefKey) {
+        return prefKey + "$$$$" + PrefUtil.getKeyForField(field) + "_arraylist_length";
+    }
+
 }

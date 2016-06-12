@@ -1,10 +1,12 @@
 package net.nashlegend.anypref.model;
 
+import net.nashlegend.anypref.annotations.PrefArrayList;
 import net.nashlegend.anypref.annotations.PrefField;
 import net.nashlegend.anypref.annotations.PrefIgnore;
 import net.nashlegend.anypref.annotations.PrefModel;
 import net.nashlegend.anypref.annotations.PrefSub;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -70,4 +72,7 @@ public class Sample {
     //private fields
     private String pvString = "private";
     private int pvInt = 10010;
+
+    @PrefArrayList
+    public ArrayList<SubSample> sampleArrayList = new ArrayList<>();
 }
