@@ -219,7 +219,6 @@ public class AnyPref {
         }
         ArrayList arrayList = new ArrayList();
         for (int i = 0; i < keyList.size(); i++) {
-            System.out.println(keyList.get(i));
             arrayList.add(get(PrefUtil.getArrayListType(field), keyList.get(i)));
         }
         return arrayList;
