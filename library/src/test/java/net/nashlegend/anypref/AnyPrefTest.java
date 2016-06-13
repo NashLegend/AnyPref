@@ -326,7 +326,7 @@ public class AnyPrefTest {
     }
 
     @Test
-    public void testSetArrayListDulplicate() throws Exception {
+    public void testSetArrayListDuplicate() throws Exception {
         Sample sample = new Sample();
         sample.sampleArrayList = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
@@ -346,5 +346,61 @@ public class AnyPrefTest {
         SubSample shadowSubSample2 = AnyPref.get(SubSample.class, key);
         Assert.assertNull(shadowSubSample2.name);
         Assert.assertEquals(AnyPref.getPrefs(Sample.class).getInt("SampleKeys$$$$sampleArrayList_arraylist_length", 0), 0);
+    }
+
+    @Test
+    public void testPrefSubNullable() throws Exception {
+        Sample shadowSample = AnyPref.get(Sample.class, "randomSub");
+        Assert.assertNotNull(shadowSample.son1);
+        Assert.assertNull(shadowSample.son2);
+
+        Sample sample = new Sample();
+        sample.son2 = new SubSample();
+        AnyPref.put(sample);
+        Assert.assertNotNull(AnyPref.get(Sample.class).son1);
+        Assert.assertNotNull(AnyPref.get(Sample.class).son2);
+
+        Sample sample2 = new Sample();
+        sample2.son1 = null;
+        AnyPref.put(sample2);
+        Assert.assertNotNull(AnyPref.get(Sample.class).son1);
+        Assert.assertNull(AnyPref.get(Sample.class).son2);
+
+        Sample sample1 = AnyPref.get(Sample.class,"randomSampleKey",true);
+        Assert.assertNull(sample1);
+    }
+
+    @Test
+    public void testPrefArrayListNullable() throws Exception {
+        Sample shadowSample = AnyPref.get(Sample.class, "randomArray");
+        Assert.assertNotNull(shadowSample.sampleArrayList);
+        Assert.assertNull(shadowSample.sampleArrayList2);
+
+        Sample sample = new Sample();
+        ArrayList<SubSample> subSamples = new ArrayList<>();
+        subSamples.add(new SubSample());
+        subSamples.add(new SubSample());
+        subSamples.add(null);
+        sample.sampleArrayList = subSamples;
+
+        ArrayList<SubSample> subSamples2 = new ArrayList<>();
+        subSamples2.add(new SubSample());
+        subSamples2.add(null);
+        subSamples2.add(null);
+        sample.sampleArrayList2 = subSamples2;
+
+        AnyPref.put(sample);
+
+        shadowSample = AnyPref.get(Sample.class);
+        Assert.assertNotNull(shadowSample.sampleArrayList);
+        Assert.assertNotNull(shadowSample.sampleArrayList2);
+
+        Assert.assertNotNull(shadowSample.sampleArrayList.get(0));
+        Assert.assertNotNull(shadowSample.sampleArrayList.get(1));
+        Assert.assertNotNull(shadowSample.sampleArrayList.get(2));
+
+        Assert.assertNotNull(shadowSample.sampleArrayList2.get(0));
+        Assert.assertNull(shadowSample.sampleArrayList2.get(1));
+        Assert.assertNull(shadowSample.sampleArrayList2.get(2));
     }
 }

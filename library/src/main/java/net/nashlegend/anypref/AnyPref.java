@@ -17,7 +17,6 @@ import java.util.Set;
  */
 @SuppressWarnings("unchecked")
 public class AnyPref {
-    private static final String EXISTS_KEY = "key.i.am.here";
 
     private static Context mContext;
 
@@ -43,7 +42,7 @@ public class AnyPref {
      * 返回一个SharedPrefs对象，可进行指定类的SharedPreferences的读写
      */
     public static SharedPrefs getPrefs(Class clazz) {
-        return new SharedPrefs(PrefUtil.getKeyForClazz(clazz), mContext);
+        return new SharedPrefs(PrefUtil.getPrefNameForClass(clazz), mContext);
     }
 
     /**
@@ -51,25 +50,25 @@ public class AnyPref {
      */
     public static void clear(Class clazz) {
         if (clazz != null) {
-            clear(clazz, PrefUtil.getKeyForClazz(clazz));
+            clear(clazz, PrefUtil.getPrefNameForClass(clazz));
         }
     }
 
     /**
      * 从SharedPreferences中清除一个实例
      */
-    public static void clear(Class clazz, String customKey) {
-        if (clazz == null || TextUtils.isEmpty(customKey)) {
+    public static void clear(Class clazz, String prefName) {
+        if (clazz == null || TextUtils.isEmpty(prefName)) {
             return;
         }
         for (Field field : PrefUtil.getFields(clazz)) {
             if (PrefUtil.isSubPref(field)) {
-                clear(field.getType(), customKey + "$$$" + PrefUtil.getKeyForField(field));
+                clear(field.getType(), prefName + "$$$" + PrefUtil.getKeyForField(field));
             } else if (PrefUtil.isArrayListPref(field)) {
-                clearArrayList(field, customKey);
+                clearArrayList(field, prefName);
             }
         }
-        getPrefs(customKey).clear();
+        getPrefs(prefName).clear();
     }
 
     /**
@@ -79,14 +78,30 @@ public class AnyPref {
         if (clazz == null) {
             return null;
         }
-        return get(clazz, PrefUtil.getKeyForClazz(clazz));
+        return get(clazz, PrefUtil.getPrefNameForClass(clazz));
     }
 
     /**
      * 从SharedPreferences中读取一个实例
      */
-    public static <T> T get(Class<T> clazz, String customKey) {
-        if (clazz == null || TextUtils.isEmpty(customKey)) {
+    public static <T> T get(Class<T> clazz, String prefName) {
+        return get(clazz, prefName, false);
+    }
+
+    /**
+     * 从SharedPreferences中读取一个实例
+     *
+     * @param clazz    要读取的对象的类
+     * @param prefName 保存此对象的SharedPreferences name
+     * @param nullable 是否可空
+     * @return
+     */
+    public static <T> T get(Class<T> clazz, String prefName, boolean nullable) {
+        if (clazz == null || TextUtils.isEmpty(prefName)) {
+            return null;
+        }
+        SharedPreferences preferences = mContext.getSharedPreferences(prefName, Context.MODE_PRIVATE);
+        if (nullable && preferences.getAll().size() == 0) {
             return null;
         }
         T obj;
@@ -97,9 +112,8 @@ public class AnyPref {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e.getMessage());
         }
-        SharedPreferences preferences = mContext.getSharedPreferences(customKey, Context.MODE_PRIVATE);
         for (Field field : PrefUtil.getFields(clazz)) {
-            get(preferences, field, obj, customKey);
+            get(preferences, field, obj, prefName);
         }
         return obj;
     }
@@ -111,30 +125,34 @@ public class AnyPref {
         if (object == null) {
             return;
         }
-        put(object, PrefUtil.getKeyForClazz(object.getClass()));
+        put(object, PrefUtil.getPrefNameForClass(object.getClass()));
     }
 
     /**
      * 将一个对象实例保存到SharedPreferences中
      */
-    public static void put(Object object, String customKey) {
-        if (object == null || TextUtils.isEmpty(customKey)) {
+    public static void put(Object object, String prefName) {
+        if (object == null || TextUtils.isEmpty(prefName)) {
             return;
         }
 
-        clear(object.getClass(), customKey);
+        clear(object.getClass(), prefName);
 
-        SharedPreferences.Editor editor = mContext.getSharedPreferences(customKey, Context.MODE_PRIVATE).edit();
+        SharedPreferences.Editor editor = mContext.getSharedPreferences(prefName, Context.MODE_PRIVATE).edit();
         for (Field field : PrefUtil.getFields(object.getClass())) {
-            put(editor, field, object, customKey);
+            put(editor, field, object, prefName);
         }
         editor.apply();
     }
 
     /**
      * 将一个变量保存到SharedPreferences中
+     *
+     * @param field    变量的field
+     * @param object   变量父对象
+     * @param prefName 父对象保存SharedPreferences的name
      */
-    private static void put(SharedPreferences.Editor editor, Field field, Object object, String prefKey) {
+    private static void put(SharedPreferences.Editor editor, Field field, Object object, String prefName) {
         String key = PrefUtil.getKeyForField(field);
         String type = field.getType().getCanonicalName();
         try {
@@ -156,11 +174,11 @@ public class AnyPref {
                     break;
                 default:
                     if (PrefUtil.isSubPref(field)) {
-                        put(field.get(object), prefKey + "$$$" + key);
+                        put(field.get(object), prefName + "$$$" + key);
                     } else if (PrefUtil.isArrayListPref(field)) {
                         Object arr = field.get(object);
                         if (arr != null && arr instanceof ArrayList) {
-                            putArrayList(editor, (ArrayList) arr, field, prefKey);
+                            putArrayList(editor, (ArrayList) arr, field, prefName);
                         }
                     } else if (PrefUtil.isFieldStringSet(field)) {
                         editor.putStringSet(key, (Set<String>) field.get(object));
@@ -174,8 +192,12 @@ public class AnyPref {
 
     /**
      * 从SharedPreferences读取一个变量并赋值
+     *
+     * @param field    变量的field
+     * @param object   变量父对象
+     * @param prefName 父对象保存SharedPreferences的name
      */
-    private static void get(SharedPreferences preferences, Field field, Object object, String prefKey) {
+    private static void get(SharedPreferences preferences, Field field, Object object, String prefName) {
         String cacheKey = PrefUtil.getCacheKeyForField(field);
         String key = PrefUtil.getKeyForField(field);
         String type = field.getType().getCanonicalName();
@@ -198,9 +220,9 @@ public class AnyPref {
                     break;
                 default:
                     if (PrefUtil.isSubPref(field)) {
-                        field.set(object, get(field.getType(), prefKey + "$$$" + key));
+                        field.set(object, get(field.getType(), prefName + "$$$" + key, PrefUtil.isPrefSubNullable(field)));
                     } else if (PrefUtil.isArrayListPref(field)) {
-                        field.set(object, getArrayList(preferences, field, prefKey));
+                        field.set(object, getArrayList(preferences, field, prefName));
                     } else if (PrefUtil.isFieldStringSet(field)) {
                         field.set(object, preferences.getStringSet(key, PrefUtil.getDefaultStringSet(cacheKey)));
                     }
@@ -211,28 +233,34 @@ public class AnyPref {
         }
     }
 
-    private static ArrayList getArrayList(SharedPreferences preferences, Field field, String prefKey) {
-        int length = preferences.getInt(PrefUtil.getArrayListLengthKey(field, prefKey), 0);
+    private static ArrayList getArrayList(SharedPreferences preferences, Field field, String prefName) {
+        int length = preferences.getInt(PrefUtil.getArrayListLengthKey(field, prefName), 0);
+        int num = PrefUtil.isPrefArrayListNullable(field);
+        boolean arrayNullable = (num >> 1) == 1;
+        boolean itemNullable = (num & 1) == 1;
+        if (length == 0 && arrayNullable) {
+            return null;
+        }
         ArrayList<String> keyList = new ArrayList<>(length);
         for (int i = 0; i < length; i++) {
-            keyList.add(PrefUtil.getArrayListItemKey(field, prefKey, i));
+            keyList.add(PrefUtil.getArrayListItemKey(field, prefName, i));
         }
         ArrayList arrayList = new ArrayList();
         for (int i = 0; i < keyList.size(); i++) {
-            arrayList.add(get(PrefUtil.getArrayListType(field), keyList.get(i)));
+            arrayList.add(get(PrefUtil.getArrayListType(field), keyList.get(i), itemNullable));
         }
         return arrayList;
     }
 
-    private static void putArrayList(SharedPreferences.Editor editor, ArrayList arrayList, Field field, String prefKey) {
+    private static void putArrayList(SharedPreferences.Editor editor, ArrayList arrayList, Field field, String prefName) {
         for (int i = 0; i < arrayList.size(); i++) {
-            put(arrayList.get(i), PrefUtil.getArrayListItemKey(field, prefKey, i));
+            put(arrayList.get(i), PrefUtil.getArrayListItemKey(field, prefName, i));
         }
-        editor.putInt(PrefUtil.getArrayListLengthKey(field, prefKey), arrayList.size());
+        editor.putInt(PrefUtil.getArrayListLengthKey(field, prefName), arrayList.size());
     }
 
-    private static void clearArrayList(Field field, String prefKey) {
-        ArrayList<String> keys = PrefUtil.getArrayListKeys(field, prefKey);
+    private static void clearArrayList(Field field, String prefName) {
+        ArrayList<String> keys = PrefUtil.getArrayListKeys(field, prefName);
         for (int i = 0; i < keys.size(); i++) {
             clear(PrefUtil.getArrayListType(field), keys.get(i));
         }

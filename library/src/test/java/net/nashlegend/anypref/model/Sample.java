@@ -65,9 +65,7 @@ public class Sample {
     @PrefField("MySon")
     public SubSample son1;
 
-    /**
-     * object that not annotated with PrefSub
-     */
+    @PrefSub(nullable = true)
     public SubSample son2;
 
     //private fields
@@ -76,4 +74,7 @@ public class Sample {
 
     @PrefArrayList
     public ArrayList<SubSample> sampleArrayList;
+
+    @PrefArrayList(nullable = true, itemNullable = true)
+    public ArrayList<SubSample> sampleArrayList2;
 }

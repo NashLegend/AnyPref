@@ -3,6 +3,7 @@ package net.nashlegend.anypref.model;
 import net.nashlegend.anypref.annotations.PrefField;
 import net.nashlegend.anypref.annotations.PrefIgnore;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 

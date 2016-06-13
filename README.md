@@ -50,10 +50,10 @@ dependencies {
         @PrefField(value = "setValueWithSpecifiedKey", strDef = {"1", "2", "3", "4"})//默认值是[1,2,3,4]
         public Set<String> setValue = new LinkedHashSet<>(); 
         
-        @PrefSub
+        @PrefSub(nullable = true)//nullable=true表示取子对象的时候，子对象可以为null，默认是false，也就是就算没有保存过子对象，也会返回一个默认的子对象
         public SubSample son1;//标注了@PrefSub的变量，虽然不是SharedPreferences支持的类型，但是仍会被保存
         
-        @PrefArrayList
+        @PrefArrayList(nullable = true, itemNullable = true)//nullable同上，itemNullable表示列表中的数据是否可以为null，默认为false
         public ArrayList<SubSample> sampleArrayList;//标注了@PrefArrayList的ArrayList会被保存，但是ArrayList不能是基本类型的
     }
 ```
@@ -62,31 +62,34 @@ dependencies {
 ```
     AnyPref.put(sample);
     //或者
-    AnyPref.put(sample, "your key");第二个参数是自己定义的保存此类的key，不是PrefModel定义的那个Key
+    AnyPref.put(sample, "your prefName");第二个参数是自己定义的保存此类的sharedPreferences name，不是PrefModel定义的那个name
 ```
 
 #### 读取数据
 ```
     Sample sample = AnyPref.get(Sample.class);
     //或者
-    Sample sample = AnyPref.get(Sample.class, "your key");
+    Sample sample = AnyPref.get(Sample.class, "your prefName");
+    //或者
+    Sample sample = AnyPref.get(Sample.class, "your prefName", true);//第三个参数表示读取出来的对象是否可以为null，默认不为null
 ```
 
 #### 清除数据
 ```
     AnyPref.clear(Sample.class);
     //或者
-    AnyPref.clear(Sample.class, "your key");
+    AnyPref.clear(Sample.class, "your prefName");
 ```
+
 
 PS，对于实例对象的读写：
 
 0. 保存的对象必须支持无参构造函数，它是写代码时用到的Model对象或者一组Setting等，不是用来保存一些系统对象比如String,View的;
-1. 保存的对象的变量们中只保存SharedPreferences支持的以及标注了@PrefSub和@PrefArrayList的变量;
-2. 标注了@PrefSub和@PrefArrayList的类型要求同第一条
+1. 保存的对象的变量们中只保存SharedPreferences支持的以及标注了```@PrefSub```和```@PrefArrayList```的变量;
+2. 标注了```@PrefSub```和```@PrefArrayList```的类型要求同第一条
 3. 只会保存修饰符为```public```的变量，```static```与```final```的变量均不会保存;
-4. 标注了@PrefSub和@PrefArrayList的变量为空时，取出来的不为null，而是默认对象或者空ArrayList
-5. 不要有循环引用，标注了@PrefSub的对象中不要包含标注了@PrefSub的父对象的类，@PrefArrayList同理，否则会导致向下无限读取
+4. 标注了```@PrefSub```和```@PrefArrayList```的变量为空时，取出来的不为null，而是默认对象或者空ArrayList
+5. 不要有循环引用，标注了```@PrefSub```的对象中不要包含标注了```@PrefSub```的父对象的类，```@PrefArrayList```同理，否则会导致向下无限读取
 
 ##### 如果使用了ProGuard，在proguard配置文件中添加
 

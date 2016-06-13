@@ -93,7 +93,7 @@ public class PrefUtil {
     /**
      * 返回保存此类的SharedPreferences的name，如果有注解则是注解中的值，否则就是类全名
      */
-    public static String getKeyForClazz(Class clazz) {
+    public static String getPrefNameForClass(Class clazz) {
         String key = classKeyMap.get(clazz.getCanonicalName());
         if (key == null) {
             if (clazz.isAnnotationPresent(PrefModel.class)) {
@@ -144,7 +144,7 @@ public class PrefUtil {
      * 获取类的所有变量
      */
     public static ArrayList<Field> getFields(Class clazz) {
-        String key = getKeyForClazz(clazz);
+        String key = getPrefNameForClass(clazz);
         ArrayList<Field> fields = fieldsMap.get(key);
         if (fields == null) {
             fields = new ArrayList<>();
@@ -272,6 +272,17 @@ public class PrefUtil {
 
     public static String getArrayListLengthKey(Field field, String prefKey) {
         return prefKey + "$$$$" + PrefUtil.getKeyForField(field) + "_arraylist_length";
+    }
+
+    public static boolean isPrefSubNullable(Field field) {
+        return field.getAnnotation(PrefSub.class).nullable();
+    }
+
+    public static int isPrefArrayListNullable(Field field) {
+        PrefArrayList prefArrayList = field.getAnnotation(PrefArrayList.class);
+        boolean arrayNullable = prefArrayList.nullable();
+        boolean itemNullable = prefArrayList.itemNullable();
+        return (arrayNullable ? 1 << 1 : 0) + (itemNullable ? 1 : 0);
     }
 
 }
