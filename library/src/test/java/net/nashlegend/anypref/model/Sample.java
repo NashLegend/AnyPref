@@ -45,23 +45,24 @@ public class Sample {
     public String stringFieldNamed = "string";
     @PrefField("boolFieldWithSpecifiedKey")
     public boolean boolFieldNamed = false;
-    @PrefField(value = "setValueWithSpecifiedKey", string = {"1", "2", "3", "4"})
+    @PrefField(value = "setValueWithSpecifiedKey", strDef = {"1", "2", "3", "4"})
     public Set<String> setValueNamed = new LinkedHashSet<>();
 
-    @PrefField(number = 14789632501L)
+    @PrefField(numDef = 14789632501L)
     public long longFieldDefault = 12345678910L;
-    @PrefField(number = 110)
+    @PrefField(numDef = 110)
     public int intFieldDefault = 2;
-    @PrefField(number = 110)
+    @PrefField(numDef = 110)
     public float floatFieldDefault = 1.2f;
-    @PrefField(bool = true)
+    @PrefField(boolDef = true)
     public boolean boolFieldDefault = false;
-    @PrefField(string = "Default")
+    @PrefField(strDef = "Default")
     public String stringFieldDefault = "NotDefault";
-    @PrefField(string = {"1", "2", "3", "4"})
+    @PrefField(strDef = {"1", "2", "3", "4"})
     public Set<String> setValueDefault = new LinkedHashSet<>();
 
     @PrefSub
+    @PrefField("MySon")
     public SubSample son1;
 
     /**

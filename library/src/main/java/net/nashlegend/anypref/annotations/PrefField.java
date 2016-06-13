@@ -14,9 +14,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface PrefField {
     String value() default "";
 
-    double number() default 0;
+    double numDef() default 0;
 
-    boolean bool() default false;
+    boolean boolDef() default false;
 
-    String[] string() default "";
+    String[] strDef() default "";
 }

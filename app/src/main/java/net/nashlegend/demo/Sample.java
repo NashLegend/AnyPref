@@ -34,15 +34,15 @@ public class Sample extends SampleSub {
     public boolean boolField3 = false;
     public Set<String> setValue3 = new LinkedHashSet<>();
 
-    @PrefField(number = 110)
+    @PrefField(numDef = 110)
     public long longField4 = 95789465213L;
-    @PrefField(number = 110)
+    @PrefField(numDef = 110)
     public int intField4 = 2;
-    @PrefField(number = 110)
+    @PrefField(numDef = 110)
     public float floatField4 = 1.2f;
-    @PrefField(bool = true)
+    @PrefField(boolDef = true)
     public boolean boolField4 = false;
-    @PrefField(string = "Default")
+    @PrefField(strDef = "Default")
     public String stringField4 = "NotDefault";
 
     private String pvString = "private";

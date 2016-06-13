@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
         AnyPref.put(sample);
         Sample sampleOut = AnyPref.get(Sample.class);
         System.out.println("son1:" + sampleOut.son1.name);
-        System.out.println("son2:" + sampleOut.son2.name);
     }
 
     private void namedPref() {

@@ -176,23 +176,23 @@ public class PrefUtil {
                 case "int":
                 case "float":
                 case "long":
-                    defaultNumberMap.put(cacheKey, pref.number());
+                    defaultNumberMap.put(cacheKey, pref.numDef());
                     break;
                 case "boolean":
-                    defaultBooleanMap.put(cacheKey, pref.bool());
+                    defaultBooleanMap.put(cacheKey, pref.boolDef());
                     break;
                 case "java.lang.String":
-                    String[] ds = pref.string();
+                    String[] ds = pref.strDef();
                     if (ds != null && ds.length > 0) {
-                        defaultStringMap.put(cacheKey, pref.string()[0]);
+                        defaultStringMap.put(cacheKey, pref.strDef()[0]);
                     }
                     break;
                 default:
                     if (isFieldStringSet(field)) {
-                        String[] sets = pref.string();
+                        String[] sets = pref.strDef();
                         if (sets != null) {
                             LinkedHashSet<String> hashSet = new LinkedHashSet<>();
-                            hashSet.addAll(Arrays.asList(pref.string()));
+                            hashSet.addAll(Arrays.asList(pref.strDef()));
                             defaultStringSetMap.put(cacheKey, hashSet);
                         }
                     }

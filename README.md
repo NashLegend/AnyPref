@@ -36,35 +36,48 @@ dependencies {
         public int intField = 32;
         @PrefIgnore//添加此注解表示不保存这个变量
         public float floatField = 1.2345f;
-        @Pref(number = 110)//表示如果读取不到后使用的默认值
+        @PrefField(numDef = 110)//表示如果读取不到后使用的默认值
         public long longField = 95789465213L;
         public String stringField = "string";
+        @PrefField(boolDef = true)
         public boolean boolField = false;
-        public Set<String> setValue = new LinkedHashSet<>();
+        @PrefField(value = "setValueWithSpecifiedKey", strDef = {"1", "2", "3", "4"})//默认值是[1,2,3,4]
+        public Set<String> setValue = new LinkedHashSet<>(); 
+        @PrefSub
+        public SubSample son1;//标注了@PrefSub的变量，虽然不是SharedPreferences支持的类型，但是仍会被保存
+        @PrefArrayList
+        public ArrayList<SubSample> sampleArrayList;//标注了@PrefArrayList的ArrayList会被保存，但是ArrayList不能是基本类型的
     }
 ```
 
 #### 保存数据:
 ```
-    AnyPref.save(sample);
+    AnyPref.put(sample);
+    //或者
+    AnyPref.put(sample, "your key");第二个参数是自己定义的保存此类的key，不是PrefModel定义的那个Key
 ```
 
 #### 读取数据
 ```
-    Sample sample = AnyPref.get(Sample.class)
+    Sample sample = AnyPref.get(Sample.class);
+    //或者
+    Sample sample = AnyPref.get(Sample.class, "your key");
 ```
 
 #### 清除数据
 ```
-    AnyPref.clear(Sample.class)
+    AnyPref.clear(Sample.class);
+    //或者
+    AnyPref.clear(Sample.class, "your key");
 ```
 
 PS，对于实例对象的读写：
 
-1. 只支持SharedPreferences支持的数据类型;
-2. 只会保存修饰符为```public```的变量，```static```与```final```的变量均不会保存;
-3. 保存的类需要支持无参构造函数
-
+0. 保存的对象必须支持无参构造函数，它是写代码时用到的Model对象或者一组Setting等，不是用来保存一些系统对象比如String,View的;
+1. 保存的对象的变量们中只保存SharedPreferences支持的以及标注了@PrefSub和@PrefArrayList的变量;
+2. 标注了@PrefSub和@PrefArrayList的类型要求同第一条
+3. 只会保存修饰符为```public```的变量，```static```与```final```的变量均不会保存;
+4. 标注了@PrefSub和@PrefArrayList的变量为空时，取出来的不为null，而是默认对象或者空ArrayList
 
 ##### 如果使用了ProGuard，在proguard配置文件中添加
 
