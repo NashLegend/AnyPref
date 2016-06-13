@@ -15,7 +15,7 @@ allprojects {
 
 ```gradle
 dependencies {
-    compile 'com.github.NashLegend:AnyPref:1.2.0'
+    compile 'com.github.NashLegend:AnyPref:1.2.1'
 }
 ```
 
@@ -50,10 +50,10 @@ dependencies {
         @PrefField(value = "setValueWithSpecifiedKey", strDef = {"1", "2", "3", "4"})//默认值是[1,2,3,4]
         public Set<String> setValue = new LinkedHashSet<>(); 
         
-        @PrefSub(nullable = true)//nullable=true表示取子对象的时候，子对象可以为null，默认是false，也就是就算没有保存过子对象，也会返回一个默认的子对象
+        @PrefSub(nullable = false)//nullable表示取子对象的时候，子对象是否可以为null，默认是true
         public SubSample son1;//标注了@PrefSub的变量，虽然不是SharedPreferences支持的类型，但是仍会被保存
         
-        @PrefArrayList(nullable = true, itemNullable = true)//nullable同上，itemNullable表示列表中的数据是否可以为null，默认为false
+        @PrefArrayList(nullable = true, itemNullable = true)//nullable同上，itemNullable表示列表中的数据是否可以为null，默认为true
         public ArrayList<SubSample> sampleArrayList;//标注了@PrefArrayList的ArrayList会被保存，但是ArrayList不能是基本类型的
     }
 ```
@@ -88,8 +88,7 @@ PS，对于实例对象的读写：
 1. 保存的对象的变量们中只保存SharedPreferences支持的以及标注了```@PrefSub```和```@PrefArrayList```的变量;
 2. 标注了```@PrefSub```和```@PrefArrayList```的类型要求同第一条
 3. 只会保存修饰符为```public```的变量，```static```与```final```的变量均不会保存;
-4. 标注了```@PrefSub```和```@PrefArrayList```的变量为空时，取出来的不为null，而是默认对象或者空ArrayList
-5. 不要有循环引用，标注了```@PrefSub```的对象中不要包含标注了```@PrefSub```的父对象的类，```@PrefArrayList```同理，否则会导致向下无限读取
+4. 不要有循环引用，标注了```@PrefSub```的对象中不要包含标注了```@PrefSub```的父对象的类，```@PrefArrayList```同理，否则会导致向下无限读取
 
 ##### 如果使用了ProGuard，在proguard配置文件中添加
 

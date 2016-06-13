@@ -12,6 +12,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(FIELD)
 @Retention(RUNTIME)
 public @interface PrefArrayList {
-    boolean nullable() default false;
-    boolean itemNullable() default false;
+    boolean nullable() default true;
+    boolean itemNullable() default true;
 }

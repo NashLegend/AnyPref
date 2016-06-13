@@ -61,7 +61,7 @@ public class Sample {
     @PrefField(strDef = {"1", "2", "3", "4"})
     public Set<String> setValueDefault = new LinkedHashSet<>();
 
-    @PrefSub
+    @PrefSub(nullable = false)
     @PrefField("MySon")
     public SubSample son1;
 
@@ -72,7 +72,7 @@ public class Sample {
     private String pvString = "private";
     private int pvInt = 10010;
 
-    @PrefArrayList
+    @PrefArrayList(nullable = false, itemNullable = false)
     public ArrayList<SubSample> sampleArrayList;
 
     @PrefArrayList(nullable = true, itemNullable = true)
