@@ -32,19 +32,27 @@ dependencies {
 ```
     @PrefModel("prefName")//可不添加此注解，"prefName"表示保存SharedPreferences的name，可为任意String字符串，如果不写，则为类的全名
     public class Sample {
+    
         @PrefField("intFieldKey")//可不添加此注解，"intFieldKey"表示保存此值时的key，可为任意String字符串，如果不写，则为此变量的变量名
         public int intField = 32;
+        
         @PrefIgnore//添加此注解表示不保存这个变量
         public float floatField = 1.2345f;
+        
         @PrefField(numDef = 110)//表示如果读取不到后使用的默认值
         public long longField = 95789465213L;
+        
         public String stringField = "string";
+        
         @PrefField(boolDef = true)
         public boolean boolField = false;
+        
         @PrefField(value = "setValueWithSpecifiedKey", strDef = {"1", "2", "3", "4"})//默认值是[1,2,3,4]
         public Set<String> setValue = new LinkedHashSet<>(); 
+        
         @PrefSub
         public SubSample son1;//标注了@PrefSub的变量，虽然不是SharedPreferences支持的类型，但是仍会被保存
+        
         @PrefArrayList
         public ArrayList<SubSample> sampleArrayList;//标注了@PrefArrayList的ArrayList会被保存，但是ArrayList不能是基本类型的
     }
