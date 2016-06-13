@@ -78,6 +78,7 @@ PS，对于实例对象的读写：
 2. 标注了@PrefSub和@PrefArrayList的类型要求同第一条
 3. 只会保存修饰符为```public```的变量，```static```与```final```的变量均不会保存;
 4. 标注了@PrefSub和@PrefArrayList的变量为空时，取出来的不为null，而是默认对象或者空ArrayList
+5. 不要有循环引用，标注了@PrefSub的对象中不要包含标注了@PrefSub的父对象的类，@PrefArrayList同理，否则会导致向下无限读取
 
 ##### 如果使用了ProGuard，在proguard配置文件中添加
 
