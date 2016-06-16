@@ -27,7 +27,7 @@ dependencies {
 
 ## 1. 读写实例对象
 
-假设有一个Sample类
+假设有一个Sample类（所有注解都是非必须的）
 
 ```
     @PrefModel("prefName")//可不添加此注解，"prefName"表示保存SharedPreferences的name，可为任意String字符串，如果不写，则为类的全名
