@@ -54,4 +54,15 @@ public class SharedPrefsTest {
         Assert.assertEquals(3, prefs.getLong("long", 0));
         Assert.assertEquals("str", prefs.getString("string", ""));
     }
+
+    @Test
+    public void testContains() {
+        SharedPrefs prefs = AnyPref.getPrefs("test");
+        Assert.assertFalse(prefs.contains("random"));
+        prefs.putLong("random",1);
+        Assert.assertTrue(prefs.contains("random"));
+        prefs.remove("random");
+        Assert.assertFalse(prefs.contains("random"));
+
+    }
 }

@@ -3,6 +3,7 @@ package net.nashlegend.anypref;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 
 import java.util.Map;
 import java.util.Set;
@@ -86,6 +87,10 @@ public class SharedPrefs {
         return this;
     }
 
+    public boolean contains(String key) {
+        return getSharedPreferences().contains(key);
+    }
+
     public void clear() {
         getEditor().clear().commit();
         this.isInTransaction = false;
@@ -99,6 +104,14 @@ public class SharedPrefs {
     public void apply() {
         getEditor().apply();
         this.isInTransaction = false;
+    }
+
+    public void registerOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
+        getSharedPreferences().registerOnSharedPreferenceChangeListener(listener);
+    }
+
+    public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
+        getSharedPreferences().unregisterOnSharedPreferenceChangeListener(listener);
     }
 
     public SharedPrefs beginTransaction() {
