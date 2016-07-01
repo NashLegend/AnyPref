@@ -63,6 +63,18 @@ public class SharedPrefsTest {
         Assert.assertTrue(prefs.contains("random"));
         prefs.remove("random");
         Assert.assertFalse(prefs.contains("random"));
+    }
+
+    @Test
+    public void testClear() {
+        SharedPrefs prefs = AnyPref.getPrefs("test");
+
+        prefs.putLong("me",222);
+
+        prefs.beginTransaction().clear().putInt("you",33).commit();
+
+        Assert.assertFalse(prefs.contains("me"));
+        Assert.assertTrue(prefs.contains("you"));
 
     }
 }

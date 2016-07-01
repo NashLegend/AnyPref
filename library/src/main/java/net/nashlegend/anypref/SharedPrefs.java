@@ -87,13 +87,13 @@ public class SharedPrefs {
         return this;
     }
 
-    public boolean contains(String key) {
-        return getSharedPreferences().contains(key);
+    public SharedPrefs clear() {
+        wrap(getEditor().clear());
+        return this;
     }
 
-    public void clear() {
-        getEditor().clear().commit();
-        this.isInTransaction = false;
+    public boolean contains(String key) {
+        return getSharedPreferences().contains(key);
     }
 
     public void commit() {
