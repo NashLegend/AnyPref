@@ -15,7 +15,7 @@ allprojects {
 
 ```gradle
 dependencies {
-    compile 'com.github.NashLegend:AnyPref:1.2.3'
+    compile 'com.github.NashLegend:AnyPref:1.2.4'
 }
 ```
 
@@ -30,7 +30,7 @@ dependencies {
 假设有一个Sample类（所有注解都是非必须的）
 
 ```
-    @PrefModel("prefName")//可不添加此注解，"prefName"表示保存SharedPreferences的name，可为任意String字符串，如果不写，则为类的全名
+    @PrefModel("prefName")//可不添加此注解，"prefName"表示保存SharedPreferences的name，可为任意String字符串，不添加此注解则为类全名
     public class Sample {
     
         @PrefField("intFieldKey")//可不添加此注解，"intFieldKey"表示保存此值时的key，可为任意String字符串，如果不写，则为此变量的变量名
