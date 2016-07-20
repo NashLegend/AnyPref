@@ -30,13 +30,13 @@ dependencies {
 假设有一个Sample类（所有注解都是非必须的）
 
 ```
-    @PrefModel("prefName")//可不添加此注解，"prefName"表示保存SharedPreferences的name，可为任意String字符串，不添加此注解则为类全名
+    @PrefModel("prefName")//"prefName"表示保存SharedPreferences的name，可为任意String字符串，若不添加此注解则为类全名
     public class Sample {
     
-        @PrefField("intFieldKey")//可不添加此注解，"intFieldKey"表示保存此值时的key，可为任意String字符串，如果不写，则为此变量的变量名
+        @PrefField("intFieldKey")//"intFieldKey"表示保存此值时的key，可为任意String字符串，若不添加此注解，则为此字段的字段名
         public int intField = 32;
         
-        @PrefIgnore//添加此注解表示不保存这个变量
+        @PrefIgnore//添加此注解表示不保存这个字段
         public float floatField = 1.2345f;
         
         @PrefField(numDef = 110)//表示如果读取不到后使用的默认值
@@ -51,7 +51,7 @@ dependencies {
         public Set<String> setValue = new LinkedHashSet<>(); 
         
         @PrefSub(nullable = false)//nullable表示取子对象的时候，子对象是否可以为null，默认是true
-        public SubSample son1;//标注了@PrefSub的变量，虽然不是SharedPreferences支持的类型，但是仍会被保存
+        public SubSample son1;//标注了@PrefSub的字段，虽然不是SharedPreferences支持的类型，但是仍会被保存
         
         @PrefArrayList(nullable = true, itemNullable = true)//nullable同上，itemNullable表示列表中的数据是否可以为null，默认为true
         public ArrayList<SubSample> sampleArrayList;//标注了@PrefArrayList的ArrayList会被保存，但是ArrayList不能是基本类型的
@@ -85,9 +85,9 @@ dependencies {
 PS，对于实例对象的读写：
 
 0. 保存的对象必须支持无参构造函数，它是写代码时用到的Model对象或者一组Setting等，不是用来保存一些系统对象比如String,View的;
-1. 保存的对象的变量们中只保存SharedPreferences支持的以及标注了```@PrefSub```和```@PrefArrayList```的变量;
+1. 保存的对象的字段们中只保存SharedPreferences支持的以及标注了```@PrefSub```和```@PrefArrayList```的字段;
 2. 标注了```@PrefSub```和```@PrefArrayList```的类型要求同第一条
-3. 只会保存修饰符为```public```的变量，```static```与```final```的变量均不会保存;
+3. 只会保存修饰符为```public```的字段，```static```与```final```的字段均不会保存;
 4. 不要有循环引用，标注了```@PrefSub```的对象中不要包含标注了```@PrefSub```的父对象的类，```@PrefArrayList```同理，否则会导致向下无限读取
 
 ##### 如果使用了ProGuard，在proguard配置文件中添加
