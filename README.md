@@ -15,7 +15,7 @@ allprojects {
 
 ```gradle
 dependencies {
-    compile 'com.github.NashLegend:AnyPref:1.2.4'
+    compile 'com.github.NashLegend:AnyPref:1.2.5'
 }
 ```
 
