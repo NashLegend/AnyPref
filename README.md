@@ -90,19 +90,15 @@ PS，对于实例对象的读写：
 3. 只会保存修饰符为```public```的字段，```static```与```final```的字段均不会保存;
 4. 不要有循环引用，标注了```@PrefSub```的对象中不要包含标注了```@PrefSub```的父对象的类，```@PrefArrayList```同理，否则会导致向下无限读取
 
-##### 如果使用了ProGuard，在proguard配置文件中添加
+##### 如果使用了ProGuard，在要保护的类上添加注解@PrefKeep，然后在proguard配置文件中添加
 
 ```
--keep class net.nashlegend.demo.Sample{ *; }
-```
-或者
-```
--keepclasseswithmembernames class net.nashlegend.demo.Sample {
-   public <fields>;
+-keepattributes Signature
+-keep class net.nashlegend.anypref.annotations.PrefKeep
+-keepclasseswithmembernames @net.nashlegend.anypref.annotations.PrefKeep class * {
+    public <fields>;
 }
 ```
-
-将```net.nashlegend.demo.Sample```改成对应的类
 
 ## 2. 读写任意数据
 

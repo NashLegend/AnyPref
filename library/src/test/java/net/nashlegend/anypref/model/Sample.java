@@ -3,6 +3,7 @@ package net.nashlegend.anypref.model;
 import net.nashlegend.anypref.annotations.PrefArrayList;
 import net.nashlegend.anypref.annotations.PrefField;
 import net.nashlegend.anypref.annotations.PrefIgnore;
+import net.nashlegend.anypref.annotations.PrefKeep;
 import net.nashlegend.anypref.annotations.PrefModel;
 import net.nashlegend.anypref.annotations.PrefSub;
 
@@ -14,6 +15,7 @@ import java.util.Set;
  * Created by NashLegend on 16/5/22.
  */
 @PrefModel("SampleKeys")
+@PrefKeep
 public class Sample {
     public int intField = 65535;
     public float floatField = 1.235f;

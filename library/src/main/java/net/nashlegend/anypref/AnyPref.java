@@ -247,7 +247,10 @@ public class AnyPref {
         }
         ArrayList arrayList = new ArrayList();
         for (int i = 0; i < keyList.size(); i++) {
-            arrayList.add(get(PrefUtil.getArrayListType(field), keyList.get(i), itemNullable));
+            Object obj = get(PrefUtil.getArrayListType(field), keyList.get(i), itemNullable);
+            if (obj != null || itemNullable) {
+                arrayList.add(obj);
+            }
         }
         return arrayList;
     }
