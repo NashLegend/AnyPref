@@ -54,7 +54,7 @@ dependencies {
         public SubSample son1;//标注了@PrefSub的字段，虽然不是SharedPreferences支持的类型，但是仍会被保存
         
         @PrefArrayList(nullable = true, itemNullable = true)//nullable同上，itemNullable表示列表中的数据是否可以为null，默认为true
-        public ArrayList<SubSample> sampleArrayList;//标注了@PrefArrayList的ArrayList会被保存，但是ArrayList不能是基本类型的
+        public ArrayList<SubSample> sampleArrayList;//标注了@PrefArrayList的ArrayList会被保存，必须要有泛型信息，且不能是基本类型的，其限制与PrefModel相同
     }
 ```
 
