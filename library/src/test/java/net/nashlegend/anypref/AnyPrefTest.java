@@ -1,7 +1,5 @@
 package net.nashlegend.anypref;
 
-import android.os.Build;
-
 import net.nashlegend.anypref.model.Sample;
 import net.nashlegend.anypref.model.SubSample;
 
@@ -10,7 +8,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
@@ -22,8 +20,8 @@ import java.util.Set;
 /**
  * Created by NashLegend on 16/6/7.
  */
-@RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.M)
+@RunWith(RobolectricTestRunner.class)
+@Config(constants = BuildConfig.class, sdk = 23)
 public class AnyPrefTest {
 
     @Before
@@ -366,7 +364,7 @@ public class AnyPrefTest {
         Assert.assertNotNull(AnyPref.get(Sample.class).son1);
         Assert.assertNull(AnyPref.get(Sample.class).son2);
 
-        Sample sample1 = AnyPref.get(Sample.class,"randomSampleKey",true);
+        Sample sample1 = AnyPref.get(Sample.class, "randomSampleKey", true);
         Assert.assertNull(sample1);
     }
 

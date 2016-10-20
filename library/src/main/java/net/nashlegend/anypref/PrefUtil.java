@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by NashLegend on 16/6/7.
  */
-public class PrefUtil {
+class PrefUtil {
     private static ConcurrentHashMap<String, Class> arraylistType = new ConcurrentHashMap<>();
     /**
      * 字段缓存
@@ -44,7 +44,7 @@ public class PrefUtil {
     private static ConcurrentHashMap<String, String> defaultStringMap = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<String, Set<String>> defaultStringSetMap = new ConcurrentHashMap<>();
 
-    public static boolean isFieldStringSet(Field field) {
+    static boolean isFieldStringSet(Field field) {
         String mapKey = getCacheKeyForField(field);
         Boolean result = strSetMap.get(mapKey);
         if (result == null) {
@@ -59,7 +59,7 @@ public class PrefUtil {
     /**
      * 判断变量是否是Set<String>
      */
-    public static boolean checkIsFieldStringSet(Field field) {
+    static boolean checkIsFieldStringSet(Field field) {
         if (field.getType().isAssignableFrom(Set.class)) {
             Type tp = field.getGenericType();
             if (tp != null && tp instanceof ParameterizedType) {
@@ -79,71 +79,69 @@ public class PrefUtil {
     /**
      * 判断变量是否是一个要读取其他Preference的对象
      */
-    public static boolean isSubPref(Field field) {
+    static boolean isSubPref(Field field) {
         return field.isAnnotationPresent(PrefSub.class);
     }
 
     /**
      * 判断变量是否是一个要读取其他Preference的对象
      */
-    public static boolean isArrayListPref(Field field) {
+    static boolean isArrayListPref(Field field) {
         return field.isAnnotationPresent(PrefArrayList.class);
     }
 
     /**
      * 返回保存此类的SharedPreferences的name，如果有注解则是注解中的值，否则就是类全名
      */
-    public static String getPrefNameForClass(Class clazz) {
+    static String getPrefNameForClass(Class clazz) {
         String key = classKeyMap.get(clazz.getCanonicalName());
-        if (key == null) {
-            if (clazz.isAnnotationPresent(PrefModel.class)) {
-                PrefModel model = (PrefModel) clazz.getAnnotation(PrefModel.class);
-                String value = model.value();
-                if (!TextUtils.isEmpty(value)) {
-                    classKeyMap.put(clazz.getCanonicalName(), value);
-                    return value;
-                }
-            }
-            classKeyMap.put(clazz.getCanonicalName(), clazz.getCanonicalName());
-            return clazz.getCanonicalName();
-        } else {
+        if (key != null) {
             return key;
         }
+        if (clazz.isAnnotationPresent(PrefModel.class)) {
+            PrefModel model = (PrefModel) clazz.getAnnotation(PrefModel.class);
+            String value = model.value();
+            if (!TextUtils.isEmpty(value)) {
+                classKeyMap.put(clazz.getCanonicalName(), value);
+                return value;
+            }
+        }
+        classKeyMap.put(clazz.getCanonicalName(), clazz.getCanonicalName());
+        return clazz.getCanonicalName();
     }
 
     /**
      * 返回保存此变量到SharedPreferences使用的key，如果有注解则是注解中的值，否则就是变量名
      */
-    public static String getKeyForField(Field field) {
+    static String getKeyForField(Field field) {
         String cacheKey = getCacheKeyForField(field);
         String key = fieldKeyMap.get(cacheKey);
-        if (key == null) {
-            if (field.isAnnotationPresent(PrefField.class)) {
-                PrefField pref = field.getAnnotation(PrefField.class);
-                String value = pref.value();
-                if (!TextUtils.isEmpty(value)) {
-                    fieldKeyMap.put(cacheKey, value);
-                    return value;
-                }
-            }
-            fieldKeyMap.put(cacheKey, field.getName());
-            return field.getName();
-        } else {
+        if (key != null) {
             return key;
         }
+        if (field.isAnnotationPresent(PrefField.class)) {
+            PrefField pref = field.getAnnotation(PrefField.class);
+            String value = pref.value();
+            if (!TextUtils.isEmpty(value)) {
+                fieldKeyMap.put(cacheKey, value);
+                return value;
+            }
+        }
+        fieldKeyMap.put(cacheKey, field.getName());
+        return field.getName();
     }
 
     /**
      * 判断一个变量是否被忽略而不被保存到SharedPreferences中
      */
-    public static boolean isFieldIgnored(Field field) {
+    static boolean isFieldIgnored(Field field) {
         return field.isAnnotationPresent(PrefIgnore.class);
     }
 
     /**
      * 获取类的所有变量
      */
-    public static ArrayList<Field> getFields(Class clazz) {
+    static ArrayList<Field> getFields(Class clazz) {
         String key = getPrefNameForClass(clazz);
         ArrayList<Field> fields = fieldsMap.get(key);
         if (fields == null) {
@@ -164,10 +162,8 @@ public class PrefUtil {
 
     /**
      * 初始化时读取默认值
-     *
-     * @param field
      */
-    public static void getDefaultValue(Field field) {
+    static void getDefaultValue(Field field) {
         if (field.isAnnotationPresent(PrefField.class)) {
             PrefField pref = field.getAnnotation(PrefField.class);
             String cacheKey = getCacheKeyForField(field);
@@ -183,58 +179,48 @@ public class PrefUtil {
                     break;
                 case "java.lang.String":
                     String[] ds = pref.strDef();
-                    if (ds != null && ds.length > 0) {
-                        defaultStringMap.put(cacheKey, pref.strDef()[0]);
+                    if (ds.length > 0) {
+                        defaultStringMap.put(cacheKey, ds[0]);
                     }
                     break;
                 default:
                     if (isFieldStringSet(field)) {
                         String[] sets = pref.strDef();
-                        if (sets != null) {
-                            LinkedHashSet<String> hashSet = new LinkedHashSet<>();
-                            hashSet.addAll(Arrays.asList(pref.strDef()));
-                            defaultStringSetMap.put(cacheKey, hashSet);
-                        }
+                        LinkedHashSet<String> hashSet = new LinkedHashSet<>();
+                        hashSet.addAll(Arrays.asList(sets));
+                        defaultStringSetMap.put(cacheKey, hashSet);
                     }
                     break;
             }
         }
     }
 
-    public static String getCacheKeyForField(Field field) {
+    static String getCacheKeyForField(Field field) {
         return field.getDeclaringClass().getCanonicalName() + "$$" + field.getName();
     }
 
-    public static double getDefaultNumber(String key) {
+    static double getDefaultNumber(String key) {
         Double num = defaultNumberMap.get(key);
-        if (num == null) {
-            return 0;
-        } else {
-            return num;
-        }
+        return num == null ? 0 : num;
     }
 
-    public static boolean getDefaultBoolean(String key) {
+    static boolean getDefaultBoolean(String key) {
         Boolean bool = defaultBooleanMap.get(key);
-        if (bool == null) {
-            return false;
-        } else {
-            return bool;
-        }
+        return bool == null ? false : bool;
     }
 
-    public static String getDefaultString(String key) {
+    static String getDefaultString(String key) {
         return defaultStringMap.get(key);
     }
 
-    public static Set<String> getDefaultStringSet(String key) {
+    static Set<String> getDefaultStringSet(String key) {
         return defaultStringSetMap.get(key);
     }
 
     /**
      * 返回不为空
      */
-    public static ArrayList<String> getArrayListKeys(Field field, String prefKey) {
+    static ArrayList<String> getArrayListKeys(Field field, String prefKey) {
         String lengthKey = getArrayListLengthKey(field, prefKey);
         int length = AnyPref.getPrefs(prefKey).getInt(lengthKey, 0);
         ArrayList<String> keyList = new ArrayList<>(length);
@@ -244,41 +230,40 @@ public class PrefUtil {
         return keyList;
     }
 
-    public static Class getArrayListType(Field field) {
+    static Class getArrayListType(Field field) {
         String mapKey = getCacheKeyForField(field);
         Class result = arraylistType.get(mapKey);
-        if (result == null) {
-            if (field.getType().isAssignableFrom(ArrayList.class)) {
-                Type tp = field.getGenericType();
-                if (tp != null && tp instanceof ParameterizedType) {
-                    ParameterizedType pt = (ParameterizedType) tp;
-                    Type[] types = pt.getActualTypeArguments();
-                    if (types.length == 1) {
-                        Class genericClazz = (Class) pt.getActualTypeArguments()[0];
-                        arraylistType.put(mapKey, genericClazz);
-                        return genericClazz;
-                    }
+        if (result != null) {
+            return result;
+        }
+        if (field.getType().isAssignableFrom(ArrayList.class)) {
+            Type tp = field.getGenericType();
+            if (tp != null && tp instanceof ParameterizedType) {
+                ParameterizedType pt = (ParameterizedType) tp;
+                Type[] types = pt.getActualTypeArguments();
+                if (types.length == 1) {
+                    Class genericClazz = (Class) pt.getActualTypeArguments()[0];
+                    arraylistType.put(mapKey, genericClazz);
+                    return genericClazz;
                 }
             }
-        } else {
-            return result;
         }
         return null;
     }
 
-    public static String getArrayListItemKey(Field field, String prefKey, int index) {
+    static String getArrayListItemKey(Field field, String prefKey, int index) {
         return prefKey + "$$$$" + PrefUtil.getKeyForField(field) + "_arraylist_" + index;
     }
 
-    public static String getArrayListLengthKey(Field field, String prefKey) {
+    static String getArrayListLengthKey(Field field, String prefKey) {
         return prefKey + "$$$$" + PrefUtil.getKeyForField(field) + "_arraylist_length";
     }
 
-    public static boolean isPrefSubNullable(Field field) {
+    static boolean isPrefSubNullable(Field field) {
         return field.getAnnotation(PrefSub.class).nullable();
     }
 
-    public static int isPrefArrayListNullable(Field field) {
+    static int isPrefArrayListNullable(Field field) {
         PrefArrayList prefArrayList = field.getAnnotation(PrefArrayList.class);
         boolean arrayNullable = prefArrayList.nullable();
         boolean itemNullable = prefArrayList.itemNullable();
