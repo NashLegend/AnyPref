@@ -61,7 +61,8 @@ public class AnyPref {
         if (clazz == null || TextUtils.isEmpty(prefName)) {
             return;
         }
-        for (Field field : PrefUtil.getFields(clazz)) {
+        ArrayList<Field> fields = PrefUtil.getFields(clazz);
+        for (Field field : fields) {
             if (PrefUtil.isSubPref(field)) {
                 clear(field.getType(), prefName + "$$$" + PrefUtil.getKeyForField(field));
             } else if (PrefUtil.isArrayListPref(field)) {
@@ -112,7 +113,8 @@ public class AnyPref {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e.getMessage());
         }
-        for (Field field : PrefUtil.getFields(clazz)) {
+        ArrayList<Field> fields = PrefUtil.getFields(clazz);
+        for (Field field : fields) {
             get(preferences, field, obj, prefName);
         }
         return obj;
@@ -139,7 +141,8 @@ public class AnyPref {
         clear(object.getClass(), prefName);
 
         SharedPreferences.Editor editor = mContext.getSharedPreferences(prefName, Context.MODE_PRIVATE).edit();
-        for (Field field : PrefUtil.getFields(object.getClass())) {
+        ArrayList<Field> fields = PrefUtil.getFields(object.getClass());
+        for (Field field : fields) {
             put(editor, field, object, prefName);
         }
         editor.apply();
